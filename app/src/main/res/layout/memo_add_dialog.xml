@@ -178,7 +178,9 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/memoListContentLayoutDialog"
             android:layout_marginTop="5dp"
-            android:layout_marginRight="20dp"/>
+            android:layout_marginRight="20dp"
+            android:textStyle="bold"
+            />
 
 
 

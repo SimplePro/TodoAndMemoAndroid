@@ -1,6 +1,7 @@
 package com.example.todoandmemo
 
 import android.content.Context
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -26,7 +27,6 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
-        val lottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(parent.context, R.anim.lottie_animation_alpha_animation2)
         val view = LayoutInflater.from(parent.context).inflate(R.layout.todo_list_item, parent, false)
         Log.d("TAG", "onCreateViewHolder LayoutInflater")
         return CustomViewHolder(view).apply {
