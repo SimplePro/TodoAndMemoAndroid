@@ -467,5 +467,4 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
         Log.d("TAG", "memoPlanText is ${memoPlanText}")
     }
-
 }

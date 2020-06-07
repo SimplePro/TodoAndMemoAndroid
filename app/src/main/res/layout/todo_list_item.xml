@@ -9,7 +9,7 @@
         android:background="@drawable/todo_list_item_background"
         android:layout_width="match_parent"
         android:layout_height="65dp"
-        android:layout_margin="8dp"
+        android:layout_margin="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginHorizontal="10dp"
         app:layout_constraintTop_toTopOf="parent"

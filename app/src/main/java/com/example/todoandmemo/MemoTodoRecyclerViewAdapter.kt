@@ -1,6 +1,7 @@
 package com.example.todoandmemo
 
 import android.content.Context
+import android.media.Image
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -29,6 +30,11 @@ class MemoTodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val context
                 memoOnClick.memoItemViewOnClick(it, adapterPosition)
                 Log.d("TAG", "saveData ${todoList.get(adapterPosition).todo}")
             }
+            DoneTodoListRemoveButton.setOnClickListener {
+                todoList.removeAt(adapterPosition)
+                notifyItemRemoved(adapterPosition)
+                notifyItemChanged(adapterPosition, todoList.size)
+            }
         }
     }
 
@@ -42,6 +48,7 @@ class MemoTodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val context
 
     class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val todoTitleText = itemView.findViewById<TextView>(R.id.memoTodoListTextView)
+        val DoneTodoListRemoveButton = itemView.findViewById<ImageView>(R.id.memoTodoListRemoveButton)
     }
 
     private fun saveData(memoPlanText: String){
