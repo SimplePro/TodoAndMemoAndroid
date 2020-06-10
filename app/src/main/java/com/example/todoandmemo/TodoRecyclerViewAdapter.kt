@@ -1,5 +1,6 @@
 package com.example.todoandmemo
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.preference.PreferenceManager
 import android.util.Log
@@ -12,6 +13,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 
 class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoList: ArrayList<TodoForm>, private val listener: todoItemClickListener) : RecyclerView.Adapter<TodoRecyclerViewAdapter.CustomViewHolder>() {
+
+    private var todoSearchList: List<TodoForm>? = null
 
 //    interface TodoDoneButtonSetOnClickListener {
 //        fun todoDoneButton() 1번째 방법
@@ -58,16 +61,6 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
                     builder.dismiss()
                 }
             }
-
-            DoneButton.setOnClickListener {
-                DoneTodoList.add(todoList.get(adapterPosition))
-                todoList.removeAt(adapterPosition)
-                notifyItemRemoved(adapterPosition)
-                notifyItemChanged(adapterPosition, todoList.size)
-//                todoDoneButtonSetOnClick?.todoDoneButton() 1번째 방법
-//                listener?.invoke() 2번째 방법
-                listener.todoOnItemClick(it, adapterPosition)
-            }
         }
     }
 
@@ -75,11 +68,24 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
         return todoList.size
     }
 
+
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         holder.todoText.text = todoList.get(position).todo
         Log.d("TAG", "todoList.get(position).todo : ${todoList.get(position).todo}")
         Log.d("TAG", "todoList.get(position).content : ${todoList.get(position).content}")
         Log.d("TAG", "onBindViewHolder successful set todoText")
+
+        holder.DoneButton.setOnClickListener {
+            DoneTodoList.add(todoList.get(position))
+            Log.d("TAG", "DoneTodoList ${position} is ${DoneTodoList[position].todo}")
+            Log.d("TAG", "DoneTodoList ${position} is ${DoneTodoList[position].content}")
+            todoList.removeAt(position)
+            notifyItemRemoved(position)
+            notifyItemChanged(position, todoList.size)
+//                todoDoneButtonSetOnClick?.todoDoneButton() 1번째 방법
+//                listener?.invoke() 2번째 방법
+            listener.todoOnItemClick(it, position)
+        }
     }
 
     inner class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -93,7 +99,6 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 //            }
 //        }
     }
-
 
 
 }

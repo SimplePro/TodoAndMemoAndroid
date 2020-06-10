@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.memo_add_dialog.*
 import java.text.FieldPosition
 import java.text.SimpleDateFormat
 import java.util.*
@@ -83,8 +84,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         {
             todoLottieAnimationVisibleForm = true
         }
-
-        //만일 todoLottieAnimationVisibleForm 이 true 면 todoLottieAnimationView 를 자연스럽게 애니메이션과 함께 GONE으로 바꾸어줌.
         if(todoLottieAnimationVisibleForm == true)
         {
             todoLottieAnimationLayout.startAnimation(lottieAnimationAlphaAnimation)
@@ -108,6 +107,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 memoLottieAnimationVisibleForm = false
             }, 500)
         }
+        //만일 todoLottieAnimationVisibleForm 이 true 면 todoLottieAnimationView 를 자연스럽게 애니메이션과 함께 GONE으로 바꾸어줌.
+
 
         //추가 버튼이 클릭되었을 때.
         addButton.setOnClickListener {
@@ -151,7 +152,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 }
                 //닫기 버튼이 클릭되었을 때
                 cancelTodoButton.setOnClickListener {
-                    Log.d("TAG", "todoButton is pressed")
+                    Log.d("TAG", "todoCancelButton is pressed")
                     todoBuilder.dismiss()
                 }
             }
@@ -218,10 +219,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 }
                 //메모 Dialog 안에 있는 RecylerView 가 눌렸을 때.
                 memoPlanRecyclerViewLayoutDialog.setOnClickListener {
-                    Handler().postDelayed({
                         memoListLayoutDialog.visibility = View.VISIBLE
                         memoPlanConstraintLayoutDialog.visibility = View.GONE
-                    }, 100)
                 }
             }
         }
@@ -330,14 +329,19 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 //        }
 
         //RecyclerView adapter 연결 & RecyclerView 세팅
-        todoRecyclerView.adapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
-        Log.d("TAG", "todoRecyclerView adapter ")
-        todoRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        todoRecyclerView.setHasFixedSize(true)
+        todoRecyclerView.apply{
+            adapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this@MainActivity)
+            Log.d("TAG", "todoRecyclerView adapter ")
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            setHasFixedSize(true)
+        }
 
-        memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, todoList as ArrayList<TodoForm>, this, this, this)
-        memoRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        memoRecyclerView.setHasFixedSize(true)
+
+        memoRecyclerView.apply {
+            adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, todoList as ArrayList<TodoForm>, this@MainActivity, this@MainActivity, this@MainActivity)
+            layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
+            setHasFixedSize(true)
+        }
 
 
     }
