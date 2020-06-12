@@ -45,6 +45,7 @@
                 />
 
             <EditText
+                android:textStyle="bold"
                 android:layout_marginLeft="2dp"
                 android:id="@+id/todoEditTextDialog"
                 android:layout_width="match_parent"
@@ -80,6 +81,7 @@
                 />
 
             <EditText
+                android:textStyle="bold"
                 android:layout_marginLeft="2dp"
                 android:id="@+id/contentEditTextDialog"
                 android:theme="@style/EditTheme"
