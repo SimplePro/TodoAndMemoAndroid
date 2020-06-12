@@ -198,8 +198,8 @@
             android:textSize="15dp"
             android:layout_gravity="center_horizontal"/>
     </LinearLayout>
-
     <androidx.recyclerview.widget.RecyclerView
+        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/todoRecyclerView"
@@ -208,6 +208,7 @@
         />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/memoRecyclerView"

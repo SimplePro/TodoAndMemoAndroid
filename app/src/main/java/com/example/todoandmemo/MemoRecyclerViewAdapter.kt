@@ -26,118 +26,56 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 //todoList까지 받는 이유 : todoList를 Dialog 안에 있는 RecyclerView의 아이템으로 쓰기 위해서이다. 나중에 서버쪽을 작업하게 됬을 때 todoList를 다른 ArrayList형 변수로 바꿔줘야 한다.
-class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener,
-                               val context: Context, private val ReplaceListener : memoItemReplaceClickListener) : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(){
+class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener, private val ReplaceListener : memoItemReplaceClickListener) : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(){
 
+    //메모의 Remove 버튼이 클릭되었을 때 호출되는 콜백 함수
     interface memoItemClickListener {
         fun memoOnItemClick(view: View, position: Int)
     }
 
+    //메모의 replace 버튼이 클릭되었을 때 호출되는 콜백 함수
     interface memoItemReplaceClickListener {
         fun memoItemReplaceClick(view: View, position: Int)
     }
 
+    //역할 : recyclerView 가 생성되었을 때 실행하는 것.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.memo_list_item, parent, false)
         return CustomViewHolder(view).apply {
-                memoReplaceButton.setOnClickListener {
-                    saveData(adapterPosition)
-                    ReplaceListener.memoItemReplaceClick(it, adapterPosition)
-//                    val dialog = AlertDialog.Builder(parent.context)
-//                    val edialog: LayoutInflater = LayoutInflater.from(parent.context)
-//                    val mView: View = edialog.inflate(R.layout.memo_add_dialog, null)
-//                    val builder: AlertDialog = dialog.create()
-//
-//                    val memoTitleTextDialog = mView.findViewById<EditText>(R.id.memoTitleEditTextDialog)
-//                    val memoContentTextDialog = mView.findViewById<EditText>(R.id.memoContentEditTextDialog)
-//                    val memoListLayoutDialog = mView.findViewById<ConstraintLayout>(R.id.memoListLayoutDialog)
-//                    val memoPlanConstraintLayoutDialog = mView.findViewById<ConstraintLayout>(R.id.memoPlanLayoutDialog)
-//                    val memoPlanRecyclerViewLayoutDialog = mView.findViewById<RecyclerView>(R.id.memoPlanRecyclerViewDialog)
-//                    val memoPlanCancelButtonDialog = mView.findViewById<ImageView>(R.id.memoPlanCancelImageViewDialog)
-//                    val memoPlanTextDialog = mView.findViewById<TextView>(R.id.memoListPlanTextViewDialog)
-//                    val memoSaveButtonDialog = mView.findViewById<Button>(R.id.memoSaveButtonDialog)
-//                    val memoCancelButtonDialog = mView.findViewById<Button>(R.id.memoCancelButtonDialog)
-//                    var currentTime: Date = Calendar.getInstance().getTime()
-//                    val date_text: String = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format(currentTime)
-//
-//                    memoTitleTextDialog.setText("${memoList.get(adapterPosition).memoTitle}")
-//                    memoContentTextDialog.setText("${memoList.get(adapterPosition).memoContent}")
-//
-//
-//                    builder.setView(mView)
-//                    builder.show()
-//
-//                    //memoList 저장 버튼
-//                    memoSaveButtonDialog.setOnClickListener {
-//                        Log.d("TAG", "memoButton is pressed")
-////                      date_text = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format()
-//                        memoList.set(adapterPosition, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "계획"))
-//                        notifyItemChanged(adapterPosition, memoList.size)
-//                        Log.d("TAG", "memoList of size : ${memoList.size}")
-//                        builder.dismiss()
-//                    }
-//                    //Dialog 닫기 버튼
-//                    memoCancelButtonDialog.setOnClickListener {
-//                        Log.d("TAG", "memoCancelButton is pressed")
-//                        builder.dismiss()
-//                    }
-//                    //RecyclerView와 같이 나타나는 닫기 버튼 (X 버튼)
-//                    memoPlanCancelButtonDialog.setOnClickListener {
-//                        memoListLayoutDialog.visibility = View.VISIBLE
-//                        memoPlanConstraintLayoutDialog.visibility = View.GONE
-//                    }
-//                    // 무슨 계획을 한 후에 쓰는 메모인가요? (선택)
-//                    memoPlanTextDialog.setOnClickListener {
-//                        memoListLayoutDialog.visibility = View.INVISIBLE
-//                        memoPlanConstraintLayoutDialog.visibility = View.VISIBLE
-//                        memoPlanRecyclerViewLayoutDialog.adapter = MemoTodoRecyclerViewAdapter(DoneTodoList, context)
-//                        memoPlanRecyclerViewLayoutDialog.layoutManager = LinearLayoutManager(parent.context, LinearLayoutManager.VERTICAL, false)
-//                        memoPlanRecyclerViewLayoutDialog.setHasFixedSize(true)
-//                    }
-//                    //Dialog 안에 있는 RecyclerView
-//                    memoPlanRecyclerViewLayoutDialog.setOnClickListener {
-//                        //RecyclerView 에서 아이템을 클릭했을 때 이벤트를 어떻게 구현할지 생각해야함.
-//                        memoListLayoutDialog.visibility = View.VISIBLE
-//                        memoPlanConstraintLayoutDialog.visibility = View.GONE
-//                    }
-                }
+            //memoItem 의 Replace 버튼이 클릭 되었을 때
+            memoReplaceButton.setOnClickListener {
+                //Replace 콜백 함수를 호출한다.
+                ReplaceListener.memoItemReplaceClick(it, adapterPosition)
+            }
+
+            //memoItem 의 Remove 버튼이 클릭 되었을 때
             memoRemoveButton.setOnClickListener {
-//                if((memoList.size -  1) == 0)
-//                {
-//                    val mainView = LayoutInflater.from(parent.context).inflate(R.layout.activity_main, parent, false)
-//                    val memoLottieAnimationView = mainView.findViewById<LinearLayout>(R.id.memoLottieAnimationLayout)
-//                    memoLottieAnimationView.visibility = View.VISIBLE
-//                    android.os.Handler().postDelayed({
-//                        memoLottieAnimationView.startAnimation(lottieAnimationAlphaAnimation)
-//                        Log.d("TAG", "memoRemoveButton is onClicked, log in handler and started lottieAnimationAlphaAnimation")
-//                    }, 500)
-//                }
+                //해당 position 의 값을 삭제한다.
                 memoList.removeAt(adapterPosition)
+                //notify 로 recyclerView 에 반영한다.
                 notifyItemRemoved(adapterPosition)
                 notifyItemChanged(adapterPosition, memoList.size)
+                //Remove 콜백 함수를 호출한다.
                 RemoveListener.memoOnItemClick(it, adapterPosition)
             }
             }
         }
 
+    //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
         return memoList.size
     }
 
 
+    //역할 : recyclerView 에 데이터를 할당하는 것.
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         holder.memoTitleText.text = memoList.get(position).memoTitle
         holder.memoContentText.text = memoList.get(position).memoContent
         holder.memoCalendarText.text = memoList.get(position).memoCalendar
-        if(memoList.get(position).memoPlan == "")
-        {
-            holder.memoPlanText.text = ""
-        }
-        else if(memoList.get(position).memoPlan != "")
-        {
-            holder.memoPlanText.text = "(${memoList.get(position).memoPlan} 후)"
-        }
+        memoPlanText(holder, position)
     }
+
+    //역할 : 변수에 findViewById 를 하여 대입하는 것.
     class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val memoTitleText = itemView.findViewById<TextView>(R.id.memoListTitleTextView)
         val memoContentText = itemView.findViewById<TextView>(R.id.memoListContentTextView)
@@ -147,14 +85,14 @@ class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoLi
         val memoRemoveButton = itemView.findViewById<ImageView>(R.id.memoListRemoveButton)
     }
 
-    private fun saveData(position: Int)
-    {
-        val pref = PreferenceManager.getDefaultSharedPreferences(context)
-        val editor = pref.edit()
-
-        editor
-            .putInt("position", 0)
-            .apply()
+    //역할 : memoPlanText 의 text 형식을 정해주는 것.
+    private fun memoPlanText (holder: CustomViewHolder, position : Int) {
+        if(memoList.get(position).memoPlan == "") {
+            holder.memoPlanText.text = ""
+        }
+        else if(memoList.get(position).memoPlan != "") {
+            holder.memoPlanText.text = "(${memoList.get(position).memoPlan} 후)"
+        }
     }
 
 
