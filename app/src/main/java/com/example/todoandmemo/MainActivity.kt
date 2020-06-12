@@ -265,7 +265,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val memoPlanTextShared = pref.getString("memoPlanText", "")
 
-        if(memoPlanTextShared != "")
+        if(memoPlanTextShared != "" && memoPlanTextShared != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
         {
             memoPlanText = memoPlanTextShared.toString()
         }
@@ -439,6 +439,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         //닫기 버튼이 눌렸을 때
         memoCancelButtonDialog.setOnClickListener {
             Log.d("TAG", "memoCancelButton is pressed")
+            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             memoBuilder.dismiss()
         }
 
