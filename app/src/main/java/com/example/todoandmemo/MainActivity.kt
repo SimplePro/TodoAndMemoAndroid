@@ -5,16 +5,14 @@ import android.app.Fragment
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
+import android.os.PersistableBundle
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -76,6 +74,9 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     lateinit var OutLeftSlideAnimation: Animation
     lateinit var InLeftSlideAnimation: Animation
 
+    lateinit var memoAdapter : MemoRecyclerViewAdapter
+    lateinit var todoAdapter : TodoRecyclerViewAdapter
+
     //역할 : 액티비티가 생성되었을 때.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +90,10 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         OutLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_left_slide_animation)
         InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
+
+        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, DoneTodoList as ArrayList<TodoForm>, this, this)
+
+        todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
         if(todoList.size == 1) {
@@ -265,9 +270,38 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             }
         }
 
+        //todoSearchView 에 입력이 되었을 때
+        todoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                todoAdapter.filter.filter(newText)
+                return false
+            }
+
+
+        })
+
+        //memoSearchView 에 입력이 되었을 때
+        memoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
+            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                memoAdapter.filter.filter(newText)
+                return false
+            }
+
+        })
+
         //todoRecyclerView adapter 연결 & RecyclerView 세팅
         todoRecyclerView.apply{
-            adapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this@MainActivity)
+            adapter = todoAdapter
             Log.d("TAG", "todoRecyclerView adapter ")
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
             setHasFixedSize(true)
@@ -275,7 +309,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         //memoRecyclerView adapter 연결 & RecyclerView 세팅
         memoRecyclerView.apply {
-            adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, todoList as ArrayList<TodoForm>, this@MainActivity, this@MainActivity)
+            adapter = memoAdapter
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
             setHasFixedSize(true)
         }
@@ -416,7 +450,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             Log.d("TAG", "todoButton is pressed")
             todoList.add(TodoForm(todoText.text.toString(), contentText.text.toString()))
             Log.d("TAG", "todoList of size : ${todoList.size}")
-            todoRecyclerView.adapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
+            todoRecyclerView.adapter = todoAdapter
             todoBuilder.dismiss()
             //만일 todoList의 아이템을 추가했을 때 todoList 의 사이즈가 1이면 todoLottieAnimationVisibleForm 을 true 로 바꾸어 주어 LottieAnimation 의 Visible 을 조정해주어야 함.
             if (todoList.size == 1) {
@@ -465,7 +499,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             date_text = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format(currentTime)
             memoList.add(0, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
             Log.d("TAG", "memoList of size : ${memoList.size}")
-            memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, DoneTodoList as ArrayList<TodoForm>, this, this)
+            memoRecyclerView.adapter = memoAdapter
             memoBuilder.dismiss()
             //만일 memoList 의 사이즈가 1이라면 memoLottieAnimationVisibleForm 을 true 로 바꾸어 주어 memoLottieAnimationView 를 GONE 으로 바꾸어 주어야 함.
             if (memoList.size == 1) {

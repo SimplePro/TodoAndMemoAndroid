@@ -11,9 +11,17 @@ import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
+import kotlin.collections.ArrayList
 
 class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoList: ArrayList<TodoForm>, private val DoneListener: todoItemClickListener)
-    : RecyclerView.Adapter<TodoRecyclerViewAdapter.CustomViewHolder>() {
+    : RecyclerView.Adapter<TodoRecyclerViewAdapter.CustomViewHolder>(), Filterable {
+
+    var todoSearchList : MutableList<TodoForm> = mutableListOf()
+
+    init {
+        todoSearchList = todoList
+    }
 
     //todoItem 의 Done 버튼이 클릭 되었을 때 호출되는 콜백 함수.
     interface todoItemClickListener {
@@ -75,7 +83,7 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
     //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
-        return todoList.size
+        return todoSearchList.size
     }
 
     //데이터를 할당함. (꾸며주는 것. text = string)
@@ -91,6 +99,38 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
         val todoText = itemView.findViewById<TextView>(R.id.todoListTextView)
         val DoneButton = itemView.findViewById<ImageView>(R.id.todoListDoneButton)
         val replaceButton = itemView.findViewById<ImageView>(R.id.todoListReplaceButton)
+    }
+
+    //역할 : filter 를 이용하여 todoSearchList 를 조정하는 것.
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val charSearch = constraint.toString()
+                if(charSearch.isEmpty()) {
+                    todoSearchList = todoList
+                } else {
+                    val resultList = ArrayList<TodoForm>()
+                    todoSearchList = todoList
+                    for(row in todoList)
+                    {
+                        if(row.todo.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
+                            || row.content.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
+                            resultList.add(row)
+                        }
+                    }
+                    todoSearchList = resultList
+                }
+                val filterResults = FilterResults()
+                filterResults.values = todoSearchList
+                return filterResults
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                todoSearchList = results?.values as ArrayList<TodoForm>
+                notifyDataSetChanged()
+            }
+        }
     }
 
 }
