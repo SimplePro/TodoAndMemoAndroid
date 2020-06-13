@@ -18,6 +18,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
@@ -70,6 +71,11 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
     var memoPlanText : String = ""
 
+    lateinit var OutRightSlideAnimation: Animation
+    lateinit var InRightSlideAnimation: Animation
+    lateinit var OutLeftSlideAnimation: Animation
+    lateinit var InLeftSlideAnimation: Animation
+
     //역할 : 액티비티가 생성되었을 때.
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +83,12 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         lottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation)
         startLottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation2)
+
+        OutRightSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_right_slide_animation)
+        InRightSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_right_slide_animation)
+
+        OutLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_left_slide_animation)
+        InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
         if(todoList.size == 1) {
@@ -141,6 +153,10 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 //todoLottieAnimationLayout 을 애니메이션과 함께 자연스럽게 보여준다.
                 todoLottieAnimationLayout.visibility = View.VISIBLE
                 todoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
+                memoSearchView.visibility = View.GONE
+                searchImageView.visibility = View.VISIBLE
+                titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+
 
                 //만일 memoList 의 사이즈가 0이라면
                 if (memoList.size == 0) {
@@ -188,6 +204,9 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 //memoLottieAnimationView 를 애니메이션과 함께 보여준다.
                 memoLottieAnimationLayout.visibility = View.VISIBLE
                 memoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
+                todoSearchView.visibility = View.GONE
+                searchImageView.visibility = View.VISIBLE
+                titleTextViewBottomLinearLayout.visibility = View.VISIBLE
                 //todoList 의 사이즈가 0이라면
                 if(todoList.size == 0)
                 {
@@ -217,6 +236,32 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                         todoLottieAnimationLayout.visibility = View.GONE
                     }, 500)
                 }
+            }
+        }
+
+        //검색하기 버튼이 눌렸을 때.
+        searchImageView.setOnClickListener {
+            if(tabMenuBoolean == "TODO")
+            {
+                titleTextViewBottomLinearLayout.startAnimation(OutRightSlideAnimation)
+                searchImageView.startAnimation(OutRightSlideAnimation)
+                Handler().postDelayed({
+                    titleTextViewBottomLinearLayout.visibility = View.INVISIBLE
+                    searchImageView.visibility = View.INVISIBLE
+                }, 500)
+                todoSearchView.visibility = View.VISIBLE
+                todoSearchView.startAnimation(InRightSlideAnimation)
+            }
+            else if(tabMenuBoolean == "MEMO")
+            {
+                titleTextViewBottomLinearLayout.startAnimation(OutRightSlideAnimation)
+                searchImageView.startAnimation(OutRightSlideAnimation)
+                Handler().postDelayed({
+                    titleTextViewBottomLinearLayout.visibility = View.INVISIBLE
+                    searchImageView.visibility = View.INVISIBLE
+                }, 500)
+                memoSearchView.visibility = View.VISIBLE
+                memoSearchView.startAnimation(InRightSlideAnimation)
             }
         }
 
@@ -462,6 +507,36 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         memoPlanRecyclerViewLayoutDialog.setOnClickListener {
             memoListLayoutDialog.visibility = View.VISIBLE
             memoPlanConstraintLayoutDialog.visibility = View.GONE
+        }
+    }
+
+    //역할 : 뒤로가기 버튼이 눌렸을 때 실행하는 것.
+    override fun onBackPressed() {
+        //만일 tabMenuBoolean 이 T ODO 이면서 todoSearchView 의 visibility 가 VISIBLE 이면 실행한다.
+        if(tabMenuBoolean == "TODO" && todoSearchView.visibility == View.VISIBLE) {
+            todoSearchView.startAnimation(OutLeftSlideAnimation)
+            titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+            searchImageView.visibility = View.VISIBLE
+            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
+            searchImageView.startAnimation(InLeftSlideAnimation)
+            Handler().postDelayed({
+                todoSearchView.visibility = View.GONE
+            }, 500)
+        }
+        //만일 tabMenuBoolean 이 MEMO 이면서 memoSearchView 의 visibility 가 VISIBLE 이면 실행한다.
+        else if(tabMenuBoolean == "MEMO" && memoSearchView.visibility == View.VISIBLE) {
+            memoSearchView.startAnimation(OutLeftSlideAnimation)
+            titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+            searchImageView.visibility = View.VISIBLE
+            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
+            searchImageView.startAnimation(InLeftSlideAnimation)
+            Handler().postDelayed({
+                memoSearchView.visibility = View.GONE
+            }, 500)
+        }
+        //위에 조건이 모두 아니면 실행한다.
+        else {
+            super.onBackPressed()
         }
     }
 }
