@@ -1,41 +1,34 @@
 package com.example.todoandmemo
 
 import android.content.Context
-import android.media.Image
-import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AnimationUtils
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.os.HandlerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieAnimationView
-import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
 //todoList까지 받는 이유 : todoList를 Dialog 안에 있는 RecyclerView의 아이템으로 쓰기 위해서이다. 나중에 서버쪽을 작업하게 됬을 때 todoList를 다른 ArrayList형 변수로 바꿔줘야 한다.
-class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener,
+class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var memoSearchList: ArrayList<MemoForm>, private val RemoveListener : memoItemClickListener,
                                private val ReplaceListener : memoItemReplaceClickListener)
     : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(), Filterable{
 
-    var memoSearchList: ArrayList<MemoForm>
+//    var memoSearchList : ArrayList<MemoForm>
 
     //역할 : 처음에 memoSearchList 에 memoList 의 값을 넣어줘서 리사이클러뷰에 표시하는 것.
     init {
         memoSearchList = memoList
+        notifyItemChanged(itemCount)
     }
+
+    lateinit var context : Context
 
 
     //메모의 Remove 버튼이 클릭되었을 때 호출되는 콜백 함수
@@ -50,6 +43,7 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, val Do
 
     //역할 : recyclerView 가 생성되었을 때 실행하는 것.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
+        context = parent.context
         val view = LayoutInflater.from(parent.context).inflate(R.layout.memo_list_item, parent, false)
         return CustomViewHolder(view).apply {
 
@@ -57,6 +51,7 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, val Do
             memoReplaceButton.setOnClickListener {
                 //Replace 콜백 함수를 호출한다.
                 ReplaceListener.memoItemReplaceClick(it, adapterPosition)
+                saveMemoTitleAndContentData(memoSearchList[adapterPosition].memoTitle, memoSearchList[adapterPosition].memoContent)
             }
 
             //memoItem 의 Remove 버튼이 클릭 되었을 때
@@ -137,5 +132,15 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, val Do
                 notifyDataSetChanged()
             }
         }
+    }
+
+    //문제되는 부분임. 해결해야 함.
+    private fun saveMemoTitleAndContentData(memoTitleText : String, memoContentText: String) {
+            val pref = PreferenceManager.getDefaultSharedPreferences(context)
+            val editor = pref.edit()
+
+            editor.putString("memoTitleText", memoTitleText)
+                .putString("memoContentText", memoContentText)
+                .apply()
     }
 }

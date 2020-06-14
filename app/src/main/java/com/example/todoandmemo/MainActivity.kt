@@ -1,11 +1,7 @@
 package com.example.todoandmemo
 
-import android.app.Dialog
-import android.app.Fragment
-import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.os.PersistableBundle
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,18 +12,12 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.lottie.LottieAnimationView
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.memo_add_dialog.*
-import java.text.FieldPosition
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.prefs.PreferenceChangeEvent
 import kotlin.collections.ArrayList
-import kotlin.properties.Delegates
 
 open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener,
     MemoRecyclerViewAdapter.memoItemReplaceClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener
@@ -65,6 +55,8 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
     lateinit var memoSaveButtonDialog : Button
     lateinit var memoCancelButtonDialog : Button
 
+    var memoTitleText : String = ""
+    var memoContentText : String = ""
     var memoPlanText : String = ""
 
     lateinit var OutRightSlideAnimation: Animation
@@ -74,6 +66,8 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
     lateinit var memoAdapter : MemoRecyclerViewAdapter
     lateinit var todoAdapter : TodoRecyclerViewAdapter
+
+    var memoSearchList : ArrayList<MemoForm> = arrayListOf()
 
     //역할 : 액티비티가 생성되었을 때.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,7 +84,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         OutLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_left_slide_animation)
         InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
 
-        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, DoneTodoList as ArrayList<TodoForm>, this, this)
+        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this, this)
         todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
@@ -344,10 +338,24 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
     }
 
     //memoPlanText 를 쉐어드로 저장했었는데 그 값을 받아와서 조정하는 함수
-    private fun loadMemoPlanTextData(){
+    private fun loadMemoTitleAndContentAndPlanTextData(){
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val memoTitleTextShared = pref.getString("memoTitleText", "")
+        val memoContentTextShared = pref.getString("memoContentText", "")
         val memoPlanTextShared = pref.getString("memoPlanText", "")
 
+        if(memoTitleTextShared != "")
+        {
+            memoTitleText = memoTitleTextShared.toString()
+            Log.d("TAG", "memoTitleTextShared is $memoTitleTextShared")
+            Log.d("TAG", "memoTitleText is $memoTitleText")
+        }
+        if(memoContentTextShared != "")
+        {
+            memoContentText = memoContentTextShared.toString()
+            Log.d("TAG", "memoContentTextShared is $memoContentTextShared")
+            Log.d("TAG", "memoContextText is $memoContentText")
+        }
         if(memoPlanTextShared != "" && memoPlanTextShared != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
         {
             memoPlanText = memoPlanTextShared.toString()
@@ -373,12 +381,22 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         memoCancelButtonDialog = memoMView.findViewById<Button>(R.id.memoCancelButtonDialog)
         var currentTime: Date = Calendar.getInstance().getTime()
         val date_text: String = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format(currentTime)
-        memoTitleTextDialog.setText("${memoList.get(position).memoTitle}")
-        memoContentTextDialog.setText("${memoList.get(position).memoContent}")
+//        if(memoSearchList.isNotEmpty())
+//        {
+//            for (i in 0 .. memoSearchList.size - 1)
+//            {
+//                Log.d("TAG", "memoSearchList")
+//            }
+//        }
+//        memoTitleTextDialog.setText("${memoList[position].memoTitle}")
+//        memoContentTextDialog.setText("${memoList[position].memoContent}")
+        loadMemoTitleAndContentAndPlanTextData()
+
+        memoTitleTextDialog.setText("${memoTitleText}")
+        memoContentTextDialog.setText("${memoContentText}")
 
 
-        if(memoPlanText != "")
-        {
+        if(memoPlanText != ""){
             memoPlanTextDialog.setText("${memoPlanText}")
         }
 
@@ -389,7 +407,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         memoSaveButtonDialog.setOnClickListener {
             Log.d("TAG", "memoButton is pressed")
             memoList.set(position, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
-            memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, DoneTodoList as ArrayList<TodoForm>, this, this)
+            memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this, this)
             Log.d("TAG", "memoList of size : ${memoList.size}")
             memoBuilder.dismiss()
         }
@@ -427,7 +445,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
     override fun memoItemViewOnClick(view: View, position: Int) {
         memoListLayoutDialog.visibility = View.VISIBLE
         memoPlanConstraintLayoutDialog.visibility = View.GONE
-        loadMemoPlanTextData()
+        loadMemoTitleAndContentAndPlanTextData()
         if(memoPlanText != "")
         {
             memoPlanTextDialog.setText("${memoPlanText}")
