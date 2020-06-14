@@ -293,7 +293,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         //memoSearchView 에 입력이 되었을 때
         memoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener, androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
+                    return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {

@@ -47,16 +47,16 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
                 val todoButton = mView.findViewById<Button>(R.id.todoButtonDialog)
                 val cancelTodoButton = mView.findViewById<Button>(R.id.CancelTodoButtonDialog)
 
-                todoText.setText("${todoList.get(adapterPosition).todo}")
-                contentText.setText("${todoList.get(adapterPosition).content}")
+                todoText.setText("${todoSearchList.get(adapterPosition).todo}")
+                contentText.setText("${todoSearchList.get(adapterPosition).content}")
 
                 builder.setView(mView)
                 builder.show()
 
                 //저장 버튼이 클릭되었을 때
                 todoButton.setOnClickListener {
-                    todoList.set(adapterPosition, TodoForm(todoText.text.toString(), contentText.text.toString()))
-                    notifyItemChanged(adapterPosition, todoList.size)
+                    todoSearchList.set(adapterPosition, TodoForm(todoText.text.toString(), contentText.text.toString()))
+                    notifyItemChanged(adapterPosition, todoSearchList.size)
                     builder.dismiss()
                 }
 
@@ -69,7 +69,7 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
             //todoItem 의 Done(replace) 버튼이 클릭 되었을 때
             DoneButton.setOnClickListener {
                 //DoneTodoList 에 해당 position 의 값을 추가함.
-                DoneTodoList.add(todoList.get(adapterPosition))
+                DoneTodoList.add(todoSearchList.get(adapterPosition))
                 //todoList 에 해당 position 의 값을 삭제함.
                 todoList.removeAt(adapterPosition)
                 //notify 로 recyclerView 에 반영함.
@@ -88,9 +88,9 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
     //데이터를 할당함. (꾸며주는 것. text = string)
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        holder.todoText.text = todoList.get(position).todo
-        Log.d("TAG", "todoList.get(position).todo : ${todoList.get(position).todo}")
-        Log.d("TAG", "todoList.get(position).content : ${todoList.get(position).content}")
+        holder.todoText.text = todoSearchList.get(position).todo
+        Log.d("TAG", "todoList.get(position).todo : ${todoSearchList.get(position).todo}")
+        Log.d("TAG", "todoList.get(position).content : ${todoSearchList.get(position).content}")
         Log.d("TAG", "onBindViewHolder successful set todoText")
     }
 
@@ -112,12 +112,11 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
                     val resultList = ArrayList<TodoForm>()
                     for(row in todoList)
                     {
-                        if(row.todo.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT)) || row.content.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
+                        if(row.todo.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
                             resultList.add(row)
                         }
                     }
-                    todoSearchList.clear()
-                    todoSearchList.addAll(resultList)
+                    todoSearchList = resultList
                 }
                 val filterResults = FilterResults()
                 filterResults.values = todoSearchList

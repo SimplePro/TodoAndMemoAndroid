@@ -26,17 +26,17 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 //todoList까지 받는 이유 : todoList를 Dialog 안에 있는 RecyclerView의 아이템으로 쓰기 위해서이다. 나중에 서버쪽을 작업하게 됬을 때 todoList를 다른 ArrayList형 변수로 바꿔줘야 한다.
-data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener,
+class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener,
                                private val ReplaceListener : memoItemReplaceClickListener)
     : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(), Filterable{
 
-    lateinit var memoSearchList: ArrayList<MemoForm>
+    var memoSearchList: ArrayList<MemoForm>
 
     //역할 : 처음에 memoSearchList 에 memoList 의 값을 넣어줘서 리사이클러뷰에 표시하는 것.
     init {
-        memoSearchList.clear()
-        memoSearchList.addAll(memoList)
+        memoSearchList = memoList
     }
+
 
     //메모의 Remove 버튼이 클릭되었을 때 호출되는 콜백 함수
     interface memoItemClickListener {
@@ -52,6 +52,7 @@ data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneT
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.memo_list_item, parent, false)
         return CustomViewHolder(view).apply {
+
             //memoItem 의 Replace 버튼이 클릭 되었을 때
             memoReplaceButton.setOnClickListener {
                 //Replace 콜백 함수를 호출한다.
@@ -73,15 +74,15 @@ data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneT
 
     //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
-            return memoSearchList.size
+        return memoSearchList.size
     }
 
 
     //역할 : recyclerView 에 데이터를 할당하는 것.
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        holder.memoTitleText.text = memoList.get(position).memoTitle
-        holder.memoContentText.text = memoList.get(position).memoContent
-        holder.memoCalendarText.text = memoList.get(position).memoCalendar
+        holder.memoTitleText.text = memoSearchList.get(position).memoTitle
+        holder.memoContentText.text = memoSearchList.get(position).memoContent
+        holder.memoCalendarText.text = memoSearchList.get(position).memoCalendar
         memoPlanText(holder, position)
     }
 
@@ -97,11 +98,11 @@ data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneT
 
     //역할 : memoPlanText 의 text 형식을 정해주는 것.
     private fun memoPlanText (holder: CustomViewHolder, position : Int) {
-        if(memoList.get(position).memoPlan == "") {
+        if(memoSearchList.get(position).memoPlan == "") {
             holder.memoPlanText.text = ""
         }
-        else if(memoList.get(position).memoPlan != "") {
-            holder.memoPlanText.text = "(${memoList.get(position).memoPlan} 후)"
+        else if(memoSearchList.get(position).memoPlan != "") {
+            holder.memoPlanText.text = "(${memoSearchList.get(position).memoPlan} 후)"
         }
     }
 
@@ -111,23 +112,19 @@ data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneT
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
                 if(charSearch.isEmpty()) {
-                    //임의로 해놓은거임.
                     memoSearchList = memoList
-                    Log.d("TAG", "charSearch is Empty")
                 } else {
                     val resultList = ArrayList<MemoForm>()
                     for(row in memoList)
                     {
                         if(row.memoContent.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
                             || row.memoTitle.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
-                            || row.memoPlan.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
-//                            Log.d("TAG", "row is ${row.memoContent} ${row.memoTitle} ${row.memoPlan}")
-//                            Log.d("TAG", "charSearch is ${charSearch}")
+                            || row.memoPlan.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
+                        ) {
                             resultList.add(row)
                         }
                     }
-                    memoSearchList.clear()
-                    memoSearchList.addAll(resultList)
+                    memoSearchList = resultList
                 }
                 val filterResults = FilterResults()
                 filterResults.values = memoSearchList
@@ -141,6 +138,4 @@ data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneT
             }
         }
     }
-
-
 }
