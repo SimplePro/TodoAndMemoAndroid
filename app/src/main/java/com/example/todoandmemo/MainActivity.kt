@@ -29,7 +29,7 @@ import java.util.prefs.PreferenceChangeEvent
 import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
-class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener,
+open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener,
     MemoRecyclerViewAdapter.memoItemReplaceClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener
 {
 
@@ -49,8 +49,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
     var lottieAnimationAlphaAnimation : Animation? = null
     var startLottieAnimationAlphaAnimation: Animation? = null
-
-    var position: Int = 0
 
     lateinit var memoDialog: AlertDialog.Builder
     lateinit var memoEdialog: LayoutInflater
@@ -82,6 +80,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        //변수 정의
         lottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation)
         startLottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation2)
 
@@ -92,7 +91,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
 
         memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, DoneTodoList as ArrayList<TodoForm>, this, this)
-
         todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
@@ -181,6 +179,10 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
                 stateTextView.text = "TODO"
+                memoSearchView.visibility = View.GONE
+                searchImageView.visibility = View.VISIBLE
+                titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+
                 if (memoList.size == 0) {
                     memoLottieAnimationLayout.startAnimation(lottieAnimationAlphaAnimation)
                     Handler().postDelayed({
@@ -232,6 +234,10 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
                 stateTextView.text = "MEMO"
+                todoSearchView.visibility = View.GONE
+                searchImageView.visibility = View.VISIBLE
+                titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+
                 //만일 todoList 의 사이즈가 0이라면
                 if(todoList.size == 0)
                 {
@@ -271,8 +277,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
 
         //todoSearchView 에 입력이 되었을 때
-        todoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+        todoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener, androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -286,8 +291,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         })
 
         //memoSearchView 에 입력이 되었을 때
-        memoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,
-            androidx.appcompat.widget.SearchView.OnQueryTextListener {
+        memoSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener, androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -551,8 +555,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             todoSearchView.startAnimation(OutLeftSlideAnimation)
             titleTextViewBottomLinearLayout.visibility = View.VISIBLE
             searchImageView.visibility = View.VISIBLE
-            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
             searchImageView.startAnimation(InLeftSlideAnimation)
+            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
             Handler().postDelayed({
                 todoSearchView.visibility = View.GONE
             }, 500)
@@ -562,8 +566,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             memoSearchView.startAnimation(OutLeftSlideAnimation)
             titleTextViewBottomLinearLayout.visibility = View.VISIBLE
             searchImageView.visibility = View.VISIBLE
-            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
             searchImageView.startAnimation(InLeftSlideAnimation)
+            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
             Handler().postDelayed({
                 memoSearchView.visibility = View.GONE
             }, 500)

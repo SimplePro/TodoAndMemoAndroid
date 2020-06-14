@@ -17,7 +17,7 @@ import kotlin.collections.ArrayList
 class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoList: ArrayList<TodoForm>, private val DoneListener: todoItemClickListener)
     : RecyclerView.Adapter<TodoRecyclerViewAdapter.CustomViewHolder>(), Filterable {
 
-    var todoSearchList : MutableList<TodoForm> = mutableListOf()
+    var todoSearchList : ArrayList<TodoForm>
 
     init {
         todoSearchList = todoList
@@ -101,7 +101,7 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
         val replaceButton = itemView.findViewById<ImageView>(R.id.todoListReplaceButton)
     }
 
-    //역할 : filter 를 이용하여 todoSearchList 를 조정하는 것.
+    //역할 : filter 를 이용하여 리사이클러뷰에 보여줄 리스트를 조절하는 것.
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
@@ -110,15 +110,14 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
                     todoSearchList = todoList
                 } else {
                     val resultList = ArrayList<TodoForm>()
-                    todoSearchList = todoList
                     for(row in todoList)
                     {
-                        if(row.todo.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
-                            || row.content.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
+                        if(row.todo.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT)) || row.content.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
                             resultList.add(row)
                         }
                     }
-                    todoSearchList = resultList
+                    todoSearchList.clear()
+                    todoSearchList.addAll(resultList)
                 }
                 val filterResults = FilterResults()
                 filterResults.values = todoSearchList

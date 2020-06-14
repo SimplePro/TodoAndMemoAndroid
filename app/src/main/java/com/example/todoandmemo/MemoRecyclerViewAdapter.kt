@@ -26,13 +26,16 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 //todoList까지 받는 이유 : todoList를 Dialog 안에 있는 RecyclerView의 아이템으로 쓰기 위해서이다. 나중에 서버쪽을 작업하게 됬을 때 todoList를 다른 ArrayList형 변수로 바꿔줘야 한다.
-class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener,
-                               private val ReplaceListener : memoItemReplaceClickListener)    : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(), Filterable{
+data class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoList: ArrayList<TodoForm>, private val RemoveListener : memoItemClickListener,
+                               private val ReplaceListener : memoItemReplaceClickListener)
+    : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(), Filterable{
 
-    var memoSearchList: MutableList<MemoForm> = mutableListOf()
+    lateinit var memoSearchList: ArrayList<MemoForm>
 
+    //역할 : 처음에 memoSearchList 에 memoList 의 값을 넣어줘서 리사이클러뷰에 표시하는 것.
     init {
-        memoSearchList = memoList
+        memoSearchList.clear()
+        memoSearchList.addAll(memoList)
     }
 
     //메모의 Remove 버튼이 클릭되었을 때 호출되는 콜백 함수
@@ -70,7 +73,7 @@ class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoLi
 
     //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
-        return memoSearchList.size
+            return memoSearchList.size
     }
 
 
@@ -102,25 +105,29 @@ class MemoRecyclerViewAdapter (val memoList: ArrayList<MemoForm>, val DoneTodoLi
         }
     }
 
-    //역할 : filter 를 이용하여 memoSearchList 를 조정하는 것.
+    //역할 : filter 를 이용하여 리사이클러뷰에 보여줄 리스트를 조절하는 것.
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
                 if(charSearch.isEmpty()) {
+                    //임의로 해놓은거임.
                     memoSearchList = memoList
+                    Log.d("TAG", "charSearch is Empty")
                 } else {
                     val resultList = ArrayList<MemoForm>()
-                    memoSearchList = memoList
                     for(row in memoList)
                     {
                         if(row.memoContent.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
                             || row.memoTitle.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))
                             || row.memoPlan.toLowerCase(Locale.ROOT).contains(charSearch.toLowerCase(Locale.ROOT))) {
+//                            Log.d("TAG", "row is ${row.memoContent} ${row.memoTitle} ${row.memoPlan}")
+//                            Log.d("TAG", "charSearch is ${charSearch}")
                             resultList.add(row)
                         }
                     }
-                    memoSearchList = resultList
+                    memoSearchList.clear()
+                    memoSearchList.addAll(resultList)
                 }
                 val filterResults = FilterResults()
                 filterResults.values = memoSearchList
