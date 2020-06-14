@@ -55,7 +55,8 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
                 //저장 버튼이 클릭되었을 때
                 todoButton.setOnClickListener {
-                    todoSearchList.set(adapterPosition, TodoForm(todoText.text.toString(), contentText.text.toString()))
+                    todoList.set(adapterPosition, TodoForm(todoText.text.toString(), contentText.text.toString()))
+                    todoSearchList = todoList
                     notifyItemChanged(adapterPosition, todoSearchList.size)
                     builder.dismiss()
                 }
