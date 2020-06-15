@@ -176,13 +176,13 @@
 
     <ImageView
         android:layout_weight="1"
-        android:paddingHorizontal="10dp"
+        android:paddingHorizontal="12dp"
         android:background="@drawable/right_arrow_background"
         android:layout_width="50dp"
         android:layout_height="49dp"
         android:src="@drawable/right_arrow_icon"
         android:id="@+id/todoRightArrow"
-        android:tint="#03A9F4"
+        android:tint="#FF2234"
         />
 
     </LinearLayout>
@@ -211,13 +211,13 @@
 
         <ImageView
             android:layout_weight="1"
-            android:paddingHorizontal="10dp"
+            android:paddingHorizontal="12dp"
             android:background="@drawable/right_arrow_background"
             android:layout_width="50dp"
             android:layout_height="49dp"
             android:src="@drawable/right_arrow_icon"
             android:id="@+id/memoRightArrow"
-            android:tint="#03A9F4"
+            android:tint="#FF2234"
             />
 
     </LinearLayout>
