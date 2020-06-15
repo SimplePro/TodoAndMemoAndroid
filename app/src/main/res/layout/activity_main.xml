@@ -152,29 +152,73 @@
         android:src="@drawable/search_icon"
         />
 
-    <androidx.appcompat.widget.SearchView
-        android:background="@drawable/search_view_background"
+    <LinearLayout
         android:visibility="gone"
-        android:id="@+id/todoSearchView"
+        android:id="@+id/todoSearchViewLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="49dp"
         app:layout_constraintTop_toTopOf="@id/titleTextViewBottomLinearLayout"
         app:layout_constraintBottom_toBottomOf="@id/titleTextViewBottomLinearLayout"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        />
+        android:orientation="horizontal"
+        android:weightSum="100"
+        >
 
     <androidx.appcompat.widget.SearchView
+        android:layout_weight="99"
         android:background="@drawable/search_view_background"
+        android:id="@+id/todoSearchView"
+        android:layout_width="wrap_content"
+        android:layout_height="49dp"
+        />
+
+    <ImageView
+        android:layout_weight="1"
+        android:paddingHorizontal="5dp"
+        android:paddingVertical="10dp"
+        android:background="@drawable/right_arrow_background"
+        android:layout_width="50dp"
+        android:layout_height="49dp"
+        android:src="@drawable/right_arrow_icon"
+        android:id="@+id/todoRightArrow"
+        />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:visibility="gone"
-        android:id="@+id/memoSearchView"
+        android:id="@+id/memoSearchViewLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="49dp"
         app:layout_constraintTop_toTopOf="@id/titleTextViewBottomLinearLayout"
         app:layout_constraintBottom_toBottomOf="@id/titleTextViewBottomLinearLayout"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        />
+        android:orientation="horizontal"
+        android:weightSum="100"
+        >
+
+        <androidx.appcompat.widget.SearchView
+            android:background="@drawable/search_view_background"
+            android:id="@+id/memoSearchView"
+            android:layout_width="wrap_content"
+            android:layout_height="49dp"
+            android:layout_weight="99"
+            />
+
+        <ImageView
+            android:layout_weight="1"
+            android:paddingHorizontal="5dp"
+            android:paddingVertical="10dp"
+            android:background="@drawable/right_arrow_background"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:src="@drawable/right_arrow_icon"
+            android:id="@+id/memoRightArrow"
+            />
+
+    </LinearLayout>
 
     <LinearLayout
         android:visibility="visible"

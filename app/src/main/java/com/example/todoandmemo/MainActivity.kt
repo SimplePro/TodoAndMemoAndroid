@@ -24,9 +24,9 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 {
 
     //변수 선언
-    var todoList: MutableList<TodoForm> = mutableListOf()
-    var memoList: MutableList<MemoForm> = mutableListOf()
-    var DoneTodoList: MutableList<TodoForm> = mutableListOf()
+    var todoList: ArrayList<TodoForm> = arrayListOf()
+    var memoList: ArrayList<MemoForm> = arrayListOf()
+    var DoneTodoList: ArrayList<TodoForm> = arrayListOf()
     //LottieAnimation의 VISIBLE을 정해주기 위해서 선언하는 변수 (false면 VISIBLE true 면 GONE)
     var todoLottieAnimationVisibleForm = false
     var memoLottieAnimationVisibleForm = false
@@ -150,7 +150,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
                 //todoLottieAnimationLayout 을 애니메이션과 함께 자연스럽게 보여준다.
                 todoLottieAnimationLayout.visibility = View.VISIBLE
                 todoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
-                memoSearchView.visibility = View.GONE
+                memoSearchViewLayout.visibility = View.GONE
                 searchImageView.visibility = View.VISIBLE
                 titleTextViewBottomLinearLayout.visibility = View.VISIBLE
 
@@ -173,7 +173,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
                 stateTextView.text = "TODO"
-                memoSearchView.visibility = View.GONE
+                memoSearchViewLayout.visibility = View.GONE
                 searchImageView.visibility = View.VISIBLE
                 titleTextViewBottomLinearLayout.visibility = View.VISIBLE
 
@@ -205,7 +205,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
                 //memoLottieAnimationView 를 애니메이션과 함께 보여준다.
                 memoLottieAnimationLayout.visibility = View.VISIBLE
                 memoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
-                todoSearchView.visibility = View.GONE
+                todoSearchViewLayout.visibility = View.GONE
                 searchImageView.visibility = View.VISIBLE
                 titleTextViewBottomLinearLayout.visibility = View.VISIBLE
                 //todoList 의 사이즈가 0이라면
@@ -228,7 +228,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
                 stateTextView.text = "MEMO"
-                todoSearchView.visibility = View.GONE
+                todoSearchViewLayout.visibility = View.GONE
                 searchImageView.visibility = View.VISIBLE
                 titleTextViewBottomLinearLayout.visibility = View.VISIBLE
 
@@ -250,24 +250,54 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
             {
                 titleTextViewBottomLinearLayout.startAnimation(OutRightSlideAnimation)
                 searchImageView.startAnimation(OutRightSlideAnimation)
+                todoSearchViewLayout.visibility = View.VISIBLE
+                todoSearchViewLayout.startAnimation(InRightSlideAnimation)
                 Handler().postDelayed({
                     titleTextViewBottomLinearLayout.visibility = View.INVISIBLE
                     searchImageView.visibility = View.INVISIBLE
                 }, 500)
-                todoSearchView.visibility = View.VISIBLE
-                todoSearchView.startAnimation(InRightSlideAnimation)
             }
             else if(tabMenuBoolean == "MEMO")
             {
                 titleTextViewBottomLinearLayout.startAnimation(OutRightSlideAnimation)
                 searchImageView.startAnimation(OutRightSlideAnimation)
+                memoSearchViewLayout.visibility = View.VISIBLE
+                memoSearchViewLayout.startAnimation(InRightSlideAnimation)
                 Handler().postDelayed({
                     titleTextViewBottomLinearLayout.visibility = View.INVISIBLE
                     searchImageView.visibility = View.INVISIBLE
                 }, 500)
-                memoSearchView.visibility = View.VISIBLE
-                memoSearchView.startAnimation(InRightSlideAnimation)
             }
+        }
+
+        //t odo 검색을 취소했을 때.
+        todoRightArrow.setOnClickListener {
+            //만일 tabMenuBoolean 이 T ODO 이면서 todoSearchView 의 visibility 가 VISIBLE 이면 실행한다.
+//            if(tabMenuBoolean == "T ODO" && todoSearchView.visibility == View.VISIBLE) {
+                todoSearchViewLayout.startAnimation(OutLeftSlideAnimation)
+                titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+                searchImageView.visibility = View.VISIBLE
+                searchImageView.startAnimation(InLeftSlideAnimation)
+                titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
+                Handler().postDelayed({
+                    todoSearchViewLayout.visibility = View.GONE
+                }, 500)
+//            }
+        }
+
+        //memo 검색을 취소했을 때.
+        memoRightArrow.setOnClickListener {
+            //만일 tabMenuBoolean 이 MEMO 이면서 memoSearchView 의 visibility 가 VISIBLE 이면 실행한다.
+//            else if(tabMenuBoolean == "MEMO" && memoSearchView.visibility == View.VISIBLE) {
+                memoSearchViewLayout.startAnimation(OutLeftSlideAnimation)
+                titleTextViewBottomLinearLayout.visibility = View.VISIBLE
+                searchImageView.visibility = View.VISIBLE
+                searchImageView.startAnimation(InLeftSlideAnimation)
+                titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
+                Handler().postDelayed({
+                    memoSearchViewLayout.visibility = View.GONE
+                }, 500)
+//            }
         }
 
         //todoSearchView 에 입력이 되었을 때
@@ -412,7 +442,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         memoSaveButtonDialog.setOnClickListener {
             Log.d("TAG", "memoButton is pressed")
             memoList.set(position, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
-            memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this, this)
+            memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList, memoSearchList, this, this)
             Log.d("TAG", "memoList of size : ${memoList.size}")
             memoBuilder.dismiss()
         }
@@ -433,7 +463,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         memoPlanTextDialog.setOnClickListener {
             memoListLayoutDialog.visibility = View.INVISIBLE
             memoPlanConstraintLayoutDialog.visibility = View.VISIBLE
-            memoPlanRecyclerViewLayoutDialog.adapter = MemoTodoRecyclerViewAdapter(DoneTodoList as ArrayList<TodoForm>, this, this)
+            memoPlanRecyclerViewLayoutDialog.adapter = MemoTodoRecyclerViewAdapter(DoneTodoList, this, this)
             memoPlanRecyclerViewLayoutDialog.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
             memoPlanRecyclerViewLayoutDialog.setHasFixedSize(true)
         }
@@ -568,36 +598,6 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         memoPlanRecyclerViewLayoutDialog.setOnClickListener {
             memoListLayoutDialog.visibility = View.VISIBLE
             memoPlanConstraintLayoutDialog.visibility = View.GONE
-        }
-    }
-
-    //역할 : 뒤로가기 버튼이 눌렸을 때 실행하는 것.
-    override fun onBackPressed() {
-        //만일 tabMenuBoolean 이 T ODO 이면서 todoSearchView 의 visibility 가 VISIBLE 이면 실행한다.
-        if(tabMenuBoolean == "TODO" && todoSearchView.visibility == View.VISIBLE) {
-            todoSearchView.startAnimation(OutLeftSlideAnimation)
-            titleTextViewBottomLinearLayout.visibility = View.VISIBLE
-            searchImageView.visibility = View.VISIBLE
-            searchImageView.startAnimation(InLeftSlideAnimation)
-            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
-            Handler().postDelayed({
-                todoSearchView.visibility = View.GONE
-            }, 500)
-        }
-        //만일 tabMenuBoolean 이 MEMO 이면서 memoSearchView 의 visibility 가 VISIBLE 이면 실행한다.
-        else if(tabMenuBoolean == "MEMO" && memoSearchView.visibility == View.VISIBLE) {
-            memoSearchView.startAnimation(OutLeftSlideAnimation)
-            titleTextViewBottomLinearLayout.visibility = View.VISIBLE
-            searchImageView.visibility = View.VISIBLE
-            searchImageView.startAnimation(InLeftSlideAnimation)
-            titleTextViewBottomLinearLayout.startAnimation(InLeftSlideAnimation)
-            Handler().postDelayed({
-                memoSearchView.visibility = View.GONE
-            }, 500)
-        }
-        //위에 조건이 모두 아니면 실행한다.
-        else {
-            super.onBackPressed()
         }
     }
 }

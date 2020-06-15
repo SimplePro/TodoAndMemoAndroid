@@ -58,6 +58,7 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
             memoRemoveButton.setOnClickListener {
                 //해당 position 의 값을 삭제한다.
                 memoList.removeAt(adapterPosition)
+                memoSearchList = memoList
                 //notify 로 recyclerView 에 반영한다.
                 notifyItemRemoved(adapterPosition)
                 notifyItemChanged(adapterPosition, memoList.size)

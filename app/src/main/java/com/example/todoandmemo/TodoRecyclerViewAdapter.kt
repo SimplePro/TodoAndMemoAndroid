@@ -73,6 +73,7 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
                 DoneTodoList.add(todoSearchList.get(adapterPosition))
                 //todoList 에 해당 position 의 값을 삭제함.
                 todoList.removeAt(adapterPosition)
+                todoSearchList = todoList
                 //notify 로 recyclerView 에 반영함.
                 notifyItemRemoved(adapterPosition)
                 notifyItemChanged(adapterPosition, todoList.size)
@@ -89,7 +90,7 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
     //데이터를 할당함. (꾸며주는 것. text = string)
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
-        holder.todoText.text = todoSearchList.get(position).todo
+        holder.todoText.text = todoSearchList[position].todo
         Log.d("TAG", "todoList.get(position).todo : ${todoSearchList.get(position).todo}")
         Log.d("TAG", "todoList.get(position).content : ${todoSearchList.get(position).content}")
         Log.d("TAG", "onBindViewHolder successful set todoText")
