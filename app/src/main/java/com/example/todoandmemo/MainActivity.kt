@@ -338,27 +338,32 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
     }
 
     //memoPlanText 를 쉐어드로 저장했었는데 그 값을 받아와서 조정하는 함수
-    private fun loadMemoTitleAndContentAndPlanTextData(){
+    private fun loadMemoPlanTextData(){
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val memoPlanTextShared = pref.getString("memoPlanText", "")
+
+        if(memoPlanTextShared != "" && memoPlanTextShared != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
+        {
+            memoPlanText = memoPlanTextShared.toString()
+        }
+    }
+
+    private fun loadMemoTitleAndContentTextData(){
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val memoTitleTextShared = pref.getString("memoTitleText", "")
         val memoContentTextShared = pref.getString("memoContentText", "")
-        val memoPlanTextShared = pref.getString("memoPlanText", "")
 
         if(memoTitleTextShared != "")
         {
             memoTitleText = memoTitleTextShared.toString()
-            Log.d("TAG", "memoTitleTextShared is $memoTitleTextShared")
-            Log.d("TAG", "memoTitleText is $memoTitleText")
+//            Log.d("TAG", "memoTitleTextShared is $memoTitleTextShared")
+//            Log.d("TAG", "memoTitleText is $memoTitleText")
         }
         if(memoContentTextShared != "")
         {
             memoContentText = memoContentTextShared.toString()
-            Log.d("TAG", "memoContentTextShared is $memoContentTextShared")
-            Log.d("TAG", "memoContextText is $memoContentText")
-        }
-        if(memoPlanTextShared != "" && memoPlanTextShared != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
-        {
-            memoPlanText = memoPlanTextShared.toString()
+//            Log.d("TAG", "memoContentTextShared is $memoContentTextShared")
+//            Log.d("TAG", "memoContextText is $memoContentText")
         }
     }
 
@@ -390,7 +395,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 //        }
 //        memoTitleTextDialog.setText("${memoList[position].memoTitle}")
 //        memoContentTextDialog.setText("${memoList[position].memoContent}")
-        loadMemoTitleAndContentAndPlanTextData()
+        loadMemoTitleAndContentTextData()
 
         memoTitleTextDialog.setText("${memoTitleText}")
         memoContentTextDialog.setText("${memoContentText}")
@@ -445,7 +450,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
     override fun memoItemViewOnClick(view: View, position: Int) {
         memoListLayoutDialog.visibility = View.VISIBLE
         memoPlanConstraintLayoutDialog.visibility = View.GONE
-        loadMemoTitleAndContentAndPlanTextData()
+        loadMemoPlanTextData()
         if(memoPlanText != "")
         {
             memoPlanTextDialog.setText("${memoPlanText}")

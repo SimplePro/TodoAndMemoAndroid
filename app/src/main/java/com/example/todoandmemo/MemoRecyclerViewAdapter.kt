@@ -49,9 +49,9 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
 
             //memoItem 의 Replace 버튼이 클릭 되었을 때
             memoReplaceButton.setOnClickListener {
+                saveMemoTitleAndContentData(memoSearchList[adapterPosition].memoTitle, memoSearchList[adapterPosition].memoContent)
                 //Replace 콜백 함수를 호출한다.
                 ReplaceListener.memoItemReplaceClick(it, adapterPosition)
-                saveMemoTitleAndContentData(memoSearchList[adapterPosition].memoTitle, memoSearchList[adapterPosition].memoContent)
             }
 
             //memoItem 의 Remove 버튼이 클릭 되었을 때
@@ -136,11 +136,14 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
 
     //문제되는 부분임. 해결해야 함.
     private fun saveMemoTitleAndContentData(memoTitleText : String, memoContentText: String) {
-            val pref = PreferenceManager.getDefaultSharedPreferences(context)
-            val editor = pref.edit()
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = pref.edit()
 
-            editor.putString("memoTitleText", memoTitleText)
-                .putString("memoContentText", memoContentText)
-                .apply()
+        Log.d("TAG", "memoTitleText is $memoTitleText memoContentText is $memoContentText")
+
+        editor
+            .putString("memoTitleText", memoTitleText)
+            .putString("memoContentText", memoContentText)
+            .apply()
     }
 }
