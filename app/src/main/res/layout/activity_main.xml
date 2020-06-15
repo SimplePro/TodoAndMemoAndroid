@@ -153,6 +153,7 @@
         />
 
     <LinearLayout
+        android:elevation="10dp"
         android:visibility="gone"
         android:id="@+id/todoSearchViewLayout"
         android:layout_width="match_parent"
@@ -175,19 +176,20 @@
 
     <ImageView
         android:layout_weight="1"
-        android:paddingHorizontal="5dp"
-        android:paddingVertical="10dp"
+        android:paddingHorizontal="10dp"
         android:background="@drawable/right_arrow_background"
         android:layout_width="50dp"
         android:layout_height="49dp"
         android:src="@drawable/right_arrow_icon"
         android:id="@+id/todoRightArrow"
+        android:tint="#03A9F4"
         />
 
     </LinearLayout>
 
     <LinearLayout
         android:visibility="gone"
+        android:elevation="10dp"
         android:id="@+id/memoSearchViewLayout"
         android:layout_width="match_parent"
         android:layout_height="49dp"
@@ -209,13 +211,13 @@
 
         <ImageView
             android:layout_weight="1"
-            android:paddingHorizontal="5dp"
-            android:paddingVertical="10dp"
+            android:paddingHorizontal="10dp"
             android:background="@drawable/right_arrow_background"
             android:layout_width="50dp"
             android:layout_height="49dp"
             android:src="@drawable/right_arrow_icon"
             android:id="@+id/memoRightArrow"
+            android:tint="#03A9F4"
             />
 
     </LinearLayout>
