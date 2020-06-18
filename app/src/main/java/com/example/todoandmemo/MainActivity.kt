@@ -60,6 +60,9 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     var memoContentText : String = ""
     var memoPlanText : String = ""
 
+    var todoTitleText : String = ""
+    var todoContentText : String = ""
+
     lateinit var OutRightSlideAnimation: Animation
     lateinit var InRightSlideAnimation: Animation
     lateinit var OutLeftSlideAnimation: Animation
@@ -69,6 +72,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     lateinit var todoAdapter : TodoRecyclerViewAdapter
 
     var memoSearchList : ArrayList<MemoForm> = arrayListOf()
+    var todoSearchList : ArrayList<TodoForm> = arrayListOf()
 
     //역할 : 액티비티가 생성되었을 때.
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,18 +90,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
 
         memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this)
-        todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
-        lottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation)
-        startLottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation2)
-
-        OutRightSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_right_slide_animation)
-        InRightSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_right_slide_animation)
-
-        OutLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_left_slide_animation)
-        InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
-
-        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this)
-        todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
+        todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this, todoSearchList)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
         if(todoList.size == 1) {
@@ -406,6 +399,21 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
     }
 
+    private fun loadTodoTitleAndContentTextData(){
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val todoTitleTextShared = pref.getString("todoTitleText", "")
+        val todoContentTextShared = pref.getString("todoContentText", "")
+
+        if(todoTitleTextShared != "")
+        {
+            todoTitleText = todoTitleTextShared.toString()
+        }
+        if(todoContentTextShared != "")
+        {
+            todoContentText = todoContentTextShared.toString()
+        }
+    }
+
     override fun todoOnItemReplaceClick(view: View, position: Int) {
         val dialog = AlertDialog.Builder(this)
         val edialog: LayoutInflater = LayoutInflater.from(this)
@@ -417,15 +425,18 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         val todoButton = mView.findViewById<Button>(R.id.todoButtonDialog)
         val cancelTodoButton = mView.findViewById<Button>(R.id.CancelTodoButtonDialog)
 
-        todoText.setText(todoList[position].todo)
-        contentText.setText(todoList[position].content)
+        loadTodoTitleAndContentTextData()
+
+        todoText.setText(todoTitleText)
+        contentText.setText(todoContentText)
 
         builder.setView(mView)
         builder.show()
 
         //저장 버튼이 클릭되었을 때
         todoButton.setOnClickListener {
-            todoList[position] = TodoForm(todoText.text.toString(), contentText.text.toString())
+            todoList.set(position, TodoForm(todoText.text.toString(), contentText.text.toString()))
+//            todoList[position] = TodoForm(todoText.text.toString(), contentText.text.toString())
             todoAdapter.notifyDataSetChanged()
             builder.dismiss()
         }
@@ -482,6 +493,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoButton is pressed")
             memoList.set(position, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
             memoAdapter.notifyDataSetChanged()
+
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoList of size : ${memoList.size}")
             memoBuilder.dismiss()
         }

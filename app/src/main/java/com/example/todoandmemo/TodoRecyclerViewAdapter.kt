@@ -14,13 +14,16 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.collections.ArrayList
 
-class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoList: ArrayList<TodoForm>, private val DoneListener: todoItemClickListener)
+class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoList: ArrayList<TodoForm>, private val DoneListener: todoItemClickListener, var todoSearchList : ArrayList<TodoForm>)
     : RecyclerView.Adapter<TodoRecyclerViewAdapter.CustomViewHolder>(), Filterable {
 
-    var todoSearchList : ArrayList<TodoForm>
+//    var todoSearchList : ArrayList<TodoForm>
+
+    lateinit var context : Context
 
     init {
         todoSearchList = todoList
+        notifyItemChanged(itemCount)
     }
 
     //todoItem 의 Done 버튼이 클릭 되었을 때 호출되는 콜백 함수.
@@ -31,11 +34,14 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
     //역할 : 아이템이 생성되었을 때 실행됨.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
+        context = parent.context
+
         val view = LayoutInflater.from(parent.context).inflate(R.layout.todo_list_item, parent, false)
         return CustomViewHolder(view).apply {
 
             //todoItem 의 replace 버튼이 클릭 되었을 때
             replaceButton.setOnClickListener {
+                saveTodoTitleAndContentData(todoSearchList[adapterPosition].todo, todoSearchList[adapterPosition].content)
                 //변수 선언
                 DoneListener.todoOnItemReplaceClick(it, adapterPosition)
             }
@@ -104,6 +110,16 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
                 notifyDataSetChanged()
             }
         }
+    }
+
+    private fun saveTodoTitleAndContentData(todoTitleText : String, todoContentText: String) {
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = pref.edit()
+
+        editor
+            .putString("todoTitleText", todoTitleText)
+            .putString("todoContentText", todoContentText)
+            .apply()
     }
 
 }

@@ -134,7 +134,6 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>,
         }
     }
 
-    //문제되는 부분임. 해결해야 함.
     private fun saveMemoTitleAndContentData(memoTitleText : String, memoContentText: String) {
         val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = pref.edit()
