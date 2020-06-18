@@ -24,7 +24,6 @@ class MemoTodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val context
     //역할 : recyclerView 가 생성되었을 때 실행하는 것.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.memo_todo_list_item, parent, false)
-        Log.d("TAG", "onCreateViewHolder LayoutInflater")
         return CustomViewHolder(view).apply {
             //itemView 가 클릭 되었을 때
             itemView.setOnClickListener {
@@ -32,7 +31,6 @@ class MemoTodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val context
                 saveData(todoList.get(adapterPosition).todo)
                 //해당 콜백 함수를 호출함.
                 DoneTodoListListener.memoItemViewOnClick(it, adapterPosition)
-                Log.d("TAG", "saveData ${todoList.get(adapterPosition).todo}")
             }
             //DoneTodoList 의 remove 버튼이 클릭 되었을 때
             DoneTodoListRemoveButton.setOnClickListener {

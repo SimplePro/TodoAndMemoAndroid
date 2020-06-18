@@ -26,45 +26,18 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
     //todoItem 의 Done 버튼이 클릭 되었을 때 호출되는 콜백 함수.
     interface todoItemClickListener {
         fun todoOnItemClick(view: View, position: Int)
+        fun todoOnItemReplaceClick(view: View, position: Int)
     }
 
     //역할 : 아이템이 생성되었을 때 실행됨.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CustomViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.todo_list_item, parent, false)
-        Log.d("TAG", "onCreateViewHolder LayoutInflater")
         return CustomViewHolder(view).apply {
 
             //todoItem 의 replace 버튼이 클릭 되었을 때
             replaceButton.setOnClickListener {
                 //변수 선언
-                val dialog = AlertDialog.Builder(parent.context)
-                val edialog : LayoutInflater = LayoutInflater.from(parent.context)
-                val mView : View = edialog.inflate(R.layout.todo_add_dialog, null)
-                val builder : AlertDialog = dialog.create()
-
-                val todoText = mView.findViewById<EditText>(R.id.todoEditTextDialog)
-                val contentText = mView.findViewById<EditText>(R.id.contentEditTextDialog)
-                val todoButton = mView.findViewById<Button>(R.id.todoButtonDialog)
-                val cancelTodoButton = mView.findViewById<Button>(R.id.CancelTodoButtonDialog)
-
-                todoText.setText("${todoSearchList.get(adapterPosition).todo}")
-                contentText.setText("${todoSearchList.get(adapterPosition).content}")
-
-                builder.setView(mView)
-                builder.show()
-
-                //저장 버튼이 클릭되었을 때
-                todoButton.setOnClickListener {
-                    todoList.set(adapterPosition, TodoForm(todoText.text.toString(), contentText.text.toString()))
-                    todoSearchList = todoList
-                    notifyItemChanged(adapterPosition, todoSearchList.size)
-                    builder.dismiss()
-                }
-
-                //닫기 버튼이 클릭되었을 때
-                cancelTodoButton.setOnClickListener {
-                    builder.dismiss()
-                }
+                DoneListener.todoOnItemReplaceClick(it, adapterPosition)
             }
 
             //todoItem 의 Done(replace) 버튼이 클릭 되었을 때
@@ -85,15 +58,15 @@ class TodoRecyclerViewAdapter(val todoList: ArrayList<TodoForm>, val DoneTodoLis
 
     //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
+        Log.d("TAG", "todoSearchList size is ${todoSearchList.size}")
         return todoSearchList.size
     }
 
     //데이터를 할당함. (꾸며주는 것. text = string)
     override fun onBindViewHolder(holder: CustomViewHolder, position: Int) {
         holder.todoText.text = todoSearchList[position].todo
-        Log.d("TAG", "todoList.get(position).todo : ${todoSearchList.get(position).todo}")
-        Log.d("TAG", "todoList.get(position).content : ${todoSearchList.get(position).content}")
-        Log.d("TAG", "onBindViewHolder successful set todoText")
+        Log.d("TAG", "TodoRecyclerViewAdapter.onBindViewHolder - todoList.get(position).todo : ${todoSearchList.get(position).todo}")
+        Log.d("TAG", "TodoRecyclerViewAdapter.onBindViewHolder - todoList.get(position).content : ${todoSearchList.get(position).content}")
     }
 
     //데이터를 BindViewHolder 에 넘겨주는 것

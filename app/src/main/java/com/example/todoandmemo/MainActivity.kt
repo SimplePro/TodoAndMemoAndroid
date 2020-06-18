@@ -12,15 +12,16 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener,
-    MemoRecyclerViewAdapter.memoItemReplaceClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener
+class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener
 {
 
     //변수 선언
@@ -84,7 +85,18 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         OutLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_left_slide_animation)
         InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
 
-        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this, this)
+        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this)
+        todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
+        lottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation)
+        startLottieAnimationAlphaAnimation = AnimationUtils.loadAnimation(this, R.anim.lottie_animation_alpha_animation2)
+
+        OutRightSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_right_slide_animation)
+        InRightSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_right_slide_animation)
+
+        OutLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.out_left_slide_animation)
+        InLeftSlideAnimation = AnimationUtils.loadAnimation(this, R.anim.in_left_slide_animation)
+
+        memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this)
         todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
@@ -112,6 +124,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
             }, 500)
         }
 
+
         //추가 버튼이 클릭되었을 때.
         addButton.setOnClickListener {
 
@@ -133,14 +146,16 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
             //이미 TODO버튼이 눌린 상태라면
             if (tabMenuBoolean == "TODO") {
-                Log.d("TAG", "tabMenuBoolean is TODO")
+                Log.d("TAG", "MainActivity.onCreate - tabMenuBoolean is TODO")
             }
 
             //tabMenuBoolean 이 TODO가 아니고, todoList의 사이즈가 0이라면
             else if (todoList.size == 0) {
-                //todoRecyclerView 는 보여주고, memoRecyclerView 는 안 보여준다.
-                todoRecyclerView.visibility = View.VISIBLE
-                memoRecyclerView.visibility = View.GONE
+                //todoRecyclerView는 보여주고 memoRecyclerView는 안 보여준다.
+                if (todoRecyclerView.visibility != View.GONE)
+                    todoRecyclerView.visibility = View.GONE
+                if (memoRecyclerView.visibility != View.GONE)
+                    memoRecyclerView.visibility = View.GONE
                 //tabMenuBoolean 의 값을 TODO로 만들어주어 TODO가 클릭 됬음을 표시한다.
                 tabMenuBoolean = "TODO"
                 //TODO가 선택됬음을 사용자에게 알리기 위해 보기 좋게 Background 를 변경한다.
@@ -167,8 +182,10 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
             //만일 todoList 의 사이즈가 0보다 크다면
             else {
                 //todoRecyclerView는 보여주고 memoRecyclerView는 안 보여준다.
-                todoRecyclerView.visibility = View.VISIBLE
-                memoRecyclerView.visibility = View.GONE
+                if (todoRecyclerView.visibility == View.GONE)
+                    todoRecyclerView.visibility = View.VISIBLE
+                if (memoRecyclerView.visibility != View.GONE)
+                    memoRecyclerView.visibility = View.GONE
                 tabMenuBoolean = "TODO"
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
@@ -190,14 +207,16 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         tabMenuMemoLayout.setOnClickListener {
             //만일 이미 MEMO 가 눌린 상태라면
             if(tabMenuBoolean == "MEMO") {
-                Log.d("TAG", "tabMenuBoolean is MEMO")
+                Log.d("TAG", "MainActivity.onCreate - tabMenuBoolean is MEMO")
             }
 
             //memoList 의 사이즈가 0이라면
             else if(memoList.size == 0) {
                 //todoRecyclerView 는 안보여주고, memoRecyclerView 는 보여준다.
-                todoRecyclerView.visibility = View.GONE
-                memoRecyclerView.visibility = View.VISIBLE
+                if (todoRecyclerView.visibility != View.GONE)
+                    todoRecyclerView.visibility = View.GONE
+                if (memoRecyclerView.visibility != View.GONE)
+                    memoRecyclerView.visibility = View.GONE
                 tabMenuBoolean = "MEMO"
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
@@ -221,9 +240,11 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
             //memoList 의 사이즈가 0보다 크다면
             else {
-                //memoRecyclerView 를 보여주고, todoRecyclerView 는 안 보여준다.
-                memoRecyclerView.visibility = View.VISIBLE
-                todoRecyclerView.visibility = View.GONE
+                //todoRecyclerView 는 안보여주고, memoRecyclerView 는 보여준다.
+                if (todoRecyclerView.visibility != View.GONE)
+                    todoRecyclerView.visibility = View.GONE
+                if (memoRecyclerView.visibility == View.GONE)
+                    memoRecyclerView.visibility = View.VISIBLE
                 tabMenuBoolean = "MEMO"
                 tabMenuTodoLayout.setBackgroundResource(R.drawable.rectangle_tab_menu_background)
                 tabMenuMemoLayout.setBackgroundResource(R.drawable.selected_tab_menu_background)
@@ -330,7 +351,6 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         //todoRecyclerView adapter 연결 & RecyclerView 세팅
         todoRecyclerView.apply{
             adapter = todoAdapter
-            Log.d("TAG", "todoRecyclerView adapter ")
             layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
             setHasFixedSize(true)
         }
@@ -347,23 +367,12 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
     //todoItem 이 remove 되었을 때 todoLottieAnimation 의 visibility 를 조정하는 콜백 함수
     override fun todoOnItemClick(view: View, position: Int) {
-        Log.d("TAG", "todoOnItemClick")
+        Log.d("TAG", "MainActivity.todoOnItemClick - todoOnItemClick")
         if(todoList.size == 0)
         {
             Log.d("TAG", "todoList size is 0")
             todoLottieAnimationLayout.visibility = View.VISIBLE
             todoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
-        }
-    }
-
-    //memoItem 이 remove 되었을 때 memoLottieAnimation 의 visibility 를 조정하는 콜백 함수
-    override fun memoOnItemClick(view: View, position: Int) {
-        Log.d("TAG", "memoonItemClick")
-        if(memoList.size == 0)
-        {
-            Log.d("TAG", "memoList size is 0")
-            memoLottieAnimationLayout.visibility = View.VISIBLE
-            memoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
         }
     }
 
@@ -394,6 +403,36 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
             memoContentText = memoContentTextShared.toString()
 //            Log.d("TAG", "memoContentTextShared is $memoContentTextShared")
 //            Log.d("TAG", "memoContextText is $memoContentText")
+        }
+    }
+
+    override fun todoOnItemReplaceClick(view: View, position: Int) {
+        val dialog = AlertDialog.Builder(this)
+        val edialog: LayoutInflater = LayoutInflater.from(this)
+        val mView: View = edialog.inflate(R.layout.todo_add_dialog, null)
+        val builder: AlertDialog = dialog.create()
+
+        val todoText = mView.findViewById<EditText>(R.id.todoEditTextDialog)
+        val contentText = mView.findViewById<EditText>(R.id.contentEditTextDialog)
+        val todoButton = mView.findViewById<Button>(R.id.todoButtonDialog)
+        val cancelTodoButton = mView.findViewById<Button>(R.id.CancelTodoButtonDialog)
+
+        todoText.setText(todoList[position].todo)
+        contentText.setText(todoList[position].content)
+
+        builder.setView(mView)
+        builder.show()
+
+        //저장 버튼이 클릭되었을 때
+        todoButton.setOnClickListener {
+            todoList[position] = TodoForm(todoText.text.toString(), contentText.text.toString())
+            todoAdapter.notifyDataSetChanged()
+            builder.dismiss()
+        }
+
+        //닫기 버튼이 클릭되었을 때
+        cancelTodoButton.setOnClickListener {
+            builder.dismiss()
         }
     }
 
@@ -440,16 +479,16 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
         //memoList 저장 버튼
         memoSaveButtonDialog.setOnClickListener {
-            Log.d("TAG", "memoButton is pressed")
+            Log.d("TAG", "MainActivity.memoItemReplaceClick - memoButton is pressed")
             memoList.set(position, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
-            memoRecyclerView.adapter = MemoRecyclerViewAdapter(memoList, memoSearchList, this, this)
-            Log.d("TAG", "memoList of size : ${memoList.size}")
+            memoAdapter.notifyDataSetChanged()
+            Log.d("TAG", "MainActivity.memoItemReplaceClick - memoList of size : ${memoList.size}")
             memoBuilder.dismiss()
         }
 
         //Dialog 닫기 버튼
         memoCancelButtonDialog.setOnClickListener {
-            Log.d("TAG", "memoCancelButton is pressed")
+            Log.d("TAG", "MainActivity.memoItemReplaceClick - memoCancelButton is pressed")
             memoBuilder.dismiss()
         }
 
@@ -476,6 +515,17 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         }
     }
 
+    //memoItem 이 remove 되었을 때 memoLottieAnimation 의 visibility 를 조정하는 콜백 함수
+    override fun memoOnItemClick(view: View, position: Int) {
+        Log.d("TAG", "MainActivity.memoOnItemClick - memoOnItemClick")
+        if(memoList.size == 0)
+        {
+            Log.d("TAG", "MainActivity.memoOnItemClick - memoList size is 0")
+            memoLottieAnimationLayout.visibility = View.VISIBLE
+            memoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
+        }
+    }
+
     //memoPlanText 를 조정해주는 콜백 함수
     override fun memoItemViewOnClick(view: View, position: Int) {
         memoListLayoutDialog.visibility = View.VISIBLE
@@ -485,7 +535,6 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         {
             memoPlanTextDialog.setText("${memoPlanText}")
         }
-        Log.d("TAG", "memoPlanText is ${memoPlanText}")
     }
 
     //todoDialog 함수
@@ -504,14 +553,18 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         todoBuilder.show()
 
         todoButton.setOnClickListener {
-            Log.d("TAG", "todoButton is pressed")
+            Log.d("TAG", "MainActivity.todoDialogDeclaration - todoButton is pressed")
             todoList.add(TodoForm(todoText.text.toString(), contentText.text.toString()))
-            Log.d("TAG", "todoList of size : ${todoList.size}")
-            todoRecyclerView.adapter = todoAdapter
+            Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
+            todoAdapter.notifyDataSetChanged()
             todoBuilder.dismiss()
             //만일 todoList의 아이템을 추가했을 때 todoList 의 사이즈가 1이면 todoLottieAnimationVisibleForm 을 true 로 바꾸어 주어 LottieAnimation 의 Visible 을 조정해주어야 함.
             if (todoList.size == 1) {
                 todoLottieAnimationVisibleForm = true
+                if(todoRecyclerView.visibility == View.GONE)
+                {
+                    todoRecyclerView.visibility = View.VISIBLE
+                }
             }
             //만일 todoLottieAnimationVisibleForm 이 true 이면 todoLottieAnimationView를 애니메이션고 함께 자연스럽게 GONE 으로 바꾸어 줌.
             if (todoLottieAnimationVisibleForm == true) {
@@ -524,7 +577,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
         }
         //닫기 버튼이 클릭되었을 때
         cancelTodoButton.setOnClickListener {
-            Log.d("TAG", "todoCancelButton is pressed")
+            Log.d("TAG", "MainActivity.todoDialogDeclaration - todoCancelButton is pressed")
             todoBuilder.dismiss()
         }
     }
@@ -552,15 +605,19 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
         //저장하기 버튼을 눌렀을 때
         memoSaveButtonDialog.setOnClickListener {
-            Log.d("TAG", "memoButton is pressed")
+            Log.d("TAG", "MainActivity.memoDialogDeclaration - memoButton is pressed")
             date_text = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format(currentTime)
             memoList.add(0, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
-            Log.d("TAG", "memoList of size : ${memoList.size}")
-            memoRecyclerView.adapter = memoAdapter
+            Log.d("TAG", "MainActivity.memoDialogDeclaration - memoList of size : ${memoList.size}")
+            memoAdapter.notifyDataSetChanged()
             memoBuilder.dismiss()
             //만일 memoList 의 사이즈가 1이라면 memoLottieAnimationVisibleForm 을 true 로 바꾸어 주어 memoLottieAnimationView 를 GONE 으로 바꾸어 주어야 함.
             if (memoList.size == 1) {
                 memoLottieAnimationVisibleForm = true
+                if(memoRecyclerView.visibility == View.GONE)
+                {
+                    memoRecyclerView.visibility = View.VISIBLE
+                }
             }
             //만일 memoLottieAnimationVisibleForm 이 true 이면 애니메이션과 함께 memoLottieAnimationView 를 GONE 으로 바꾸어 줌.
             if (memoLottieAnimationVisibleForm == true) {
@@ -574,7 +631,7 @@ open class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemC
 
         //닫기 버튼이 눌렸을 때
         memoCancelButtonDialog.setOnClickListener {
-            Log.d("TAG", "memoCancelButton is pressed")
+            Log.d("TAG", "MainActivity.memoDialogDeclaration - memoCancelButton is pressed")
             memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             memoBuilder.dismiss()
         }

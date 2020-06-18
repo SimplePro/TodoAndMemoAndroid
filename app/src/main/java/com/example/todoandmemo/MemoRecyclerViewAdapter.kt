@@ -11,14 +11,15 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.memo_list_item.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 //todoList까지 받는 이유 : todoList를 Dialog 안에 있는 RecyclerView의 아이템으로 쓰기 위해서이다. 나중에 서버쪽을 작업하게 됬을 때 todoList를 다른 ArrayList형 변수로 바꿔줘야 한다.
-class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var memoSearchList: ArrayList<MemoForm>, private val RemoveListener : memoItemClickListener,
-                               private val ReplaceListener : memoItemReplaceClickListener)
-    : RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(), Filterable{
+class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>,
+                               var memoSearchList: ArrayList<MemoForm>,
+                               private var clickListener : memoItemClickListener): RecyclerView.Adapter<MemoRecyclerViewAdapter.CustomViewHolder>(), Filterable{
 
 //    var memoSearchList : ArrayList<MemoForm>
 
@@ -34,10 +35,7 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
     //메모의 Remove 버튼이 클릭되었을 때 호출되는 콜백 함수
     interface memoItemClickListener {
         fun memoOnItemClick(view: View, position: Int)
-    }
 
-    //메모의 replace 버튼이 클릭되었을 때 호출되는 콜백 함수
-    interface memoItemReplaceClickListener {
         fun memoItemReplaceClick(view: View, position: Int)
     }
 
@@ -47,11 +45,11 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
         val view = LayoutInflater.from(parent.context).inflate(R.layout.memo_list_item, parent, false)
         return CustomViewHolder(view).apply {
 
-            //memoItem 의 Replace 버튼이 클릭 되었을 때
+                //memoItem 의 Replace 버튼이 클릭 되었을 때
             memoReplaceButton.setOnClickListener {
                 saveMemoTitleAndContentData(memoSearchList[adapterPosition].memoTitle, memoSearchList[adapterPosition].memoContent)
                 //Replace 콜백 함수를 호출한다.
-                ReplaceListener.memoItemReplaceClick(it, adapterPosition)
+                clickListener.memoItemReplaceClick(it, adapterPosition)
             }
 
             //memoItem 의 Remove 버튼이 클릭 되었을 때
@@ -63,13 +61,14 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
                 notifyItemRemoved(adapterPosition)
                 notifyItemChanged(adapterPosition, memoList.size)
                 //Remove 콜백 함수를 호출한다.
-                RemoveListener.memoOnItemClick(it, adapterPosition)
+                clickListener.memoOnItemClick(it, adapterPosition)
             }
             }
         }
 
     //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
+        Log.d("TAG", "memoSearchList size is ${memoSearchList.size}")
         return memoSearchList.size
     }
 
@@ -83,7 +82,7 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
     }
 
     //역할 : 변수에 findViewById 를 하여 대입하는 것.
-    class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class CustomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val memoTitleText = itemView.findViewById<TextView>(R.id.memoListTitleTextView)
         val memoContentText = itemView.findViewById<TextView>(R.id.memoListContentTextView)
         val memoCalendarText = itemView.findViewById<TextView>(R.id.memoListCalendarTextView)
@@ -139,8 +138,6 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>, var me
     private fun saveMemoTitleAndContentData(memoTitleText : String, memoContentText: String) {
         val pref = PreferenceManager.getDefaultSharedPreferences(context)
         val editor = pref.edit()
-
-        Log.d("TAG", "memoTitleText is $memoTitleText memoContentText is $memoContentText")
 
         editor
             .putString("memoTitleText", memoTitleText)
