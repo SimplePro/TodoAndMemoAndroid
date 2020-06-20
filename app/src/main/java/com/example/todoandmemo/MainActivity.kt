@@ -1,5 +1,6 @@
 package com.example.todoandmemo
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -19,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener
@@ -74,7 +77,13 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     var memoSearchList : ArrayList<MemoForm> = arrayListOf()
     var todoSearchList : ArrayList<TodoForm> = arrayListOf()
 
+    lateinit var todoId: String
+    var todoIdBoolean : Boolean = false
+    lateinit var memoId: String
+    var memoIdBoolean : Boolean = false
+
     //역할 : 액티비티가 생성되었을 때.
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -93,7 +102,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this, todoSearchList)
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
-        if(todoList.size == 1) {
+        if(todoList.size >= 1) {
             todoLottieAnimationVisibleForm = true
         }
         if(todoLottieAnimationVisibleForm == true) {
@@ -106,7 +115,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
 
         //여기는 위에 부분과 똑같음. 위에는 todoLottieAnimationVisibleForm 이였지만 여기는 memoLottieAnimationVisibleForm 이다.
-        if(memoList.size == 1) {
+        if(memoList.size >= 1) {
             memoLottieAnimationVisibleForm = true
         }
         if(memoLottieAnimationVisibleForm == true) {
@@ -361,11 +370,44 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     //todoItem 이 remove 되었을 때 todoLottieAnimation 의 visibility 를 조정하는 콜백 함수
     override fun todoOnItemClick(view: View, position: Int) {
         Log.d("TAG", "MainActivity.todoOnItemClick - todoOnItemClick")
+        loadTodoIdData()
+        loop@ for(i in 0 .. todoList.size - 1)
+        {
+            if(todoList[i].todoId == todoId)
+            {
+                todoList.removeAt(i)
+                todoAdapter.notifyItemRemoved(i)
+                todoAdapter.notifyItemChanged(i, todoList.size)
+                break@loop
+            }
+        }
         if(todoList.size == 0)
         {
             Log.d("TAG", "todoList size is 0")
             todoLottieAnimationLayout.visibility = View.VISIBLE
             todoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
+        }
+    }
+
+    //memoItem 이 remove 되었을 때 memoLottieAnimation 의 visibility 를 조정하는 콜백 함수
+    override fun memoOnItemClick(view: View, position: Int) {
+        Log.d("TAG", "MainActivity.memoOnItemClick - memoOnItemClick")
+        loadMemoIdData()
+        loop@ for(i in 0 .. memoList.size - 1)
+        {
+            if(memoList[i].memoId == memoId)
+            {
+                memoList.removeAt(i)
+                memoAdapter.notifyItemRemoved(i)
+                memoAdapter.notifyItemChanged(i, memoList.size)
+                break@loop
+            }
+        }
+        if(memoList.size == 0)
+        {
+            Log.d("TAG", "MainActivity.memoOnItemClick - memoList size is 0")
+            memoLottieAnimationLayout.visibility = View.VISIBLE
+            memoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
         }
     }
 
@@ -380,6 +422,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
     }
 
+    //memo 의 타이틀과 내용을 가져오기 위한 함수.
     private fun loadMemoTitleAndContentTextData(){
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val memoTitleTextShared = pref.getString("memoTitleText", "")
@@ -399,13 +442,27 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
     }
 
+    //memo 의 아이디를 가져오기 위한 함수.
+    private fun loadMemoIdData(){
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val memoIdShared = pref.getString("memoId", "")
+
+
+        if(memoIdShared != "")
+        {
+            memoId = memoIdShared.toString()
+        }
+
+    }
+
+    //todo의 타이틀과 상세내용을 가져오기 위한 함수.
     private fun loadTodoTitleAndContentTextData(){
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val todoTitleTextShared = pref.getString("todoTitleText", "")
         val todoContentTextShared = pref.getString("todoContentText", "")
 
         if(todoTitleTextShared != "")
-        {
+        {1
             todoTitleText = todoTitleTextShared.toString()
         }
         if(todoContentTextShared != "")
@@ -414,6 +471,18 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
     }
 
+    //todo의 아이디를 가져오기 위한 함수.
+    private fun loadTodoIdData() {
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val todoIdShared = pref.getString("todoId", "")
+
+        if(todoIdShared != "")
+        {
+            todoId = todoIdShared.toString()
+        }
+    }
+
+    //todoItem 들의 정보를 수정해주는 콜백 함수.
     override fun todoOnItemReplaceClick(view: View, position: Int) {
         val dialog = AlertDialog.Builder(this)
         val edialog: LayoutInflater = LayoutInflater.from(this)
@@ -426,6 +495,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         val cancelTodoButton = mView.findViewById<Button>(R.id.CancelTodoButtonDialog)
 
         loadTodoTitleAndContentTextData()
+        loadTodoIdData()
 
         todoText.setText(todoTitleText)
         contentText.setText(todoContentText)
@@ -433,11 +503,26 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         builder.setView(mView)
         builder.show()
 
-        //저장 버튼이 클릭되었을 때
+        //수정 버튼이 클릭되었을 때
         todoButton.setOnClickListener {
-            todoList.set(position, TodoForm(todoText.text.toString(), contentText.text.toString()))
-//            todoList[position] = TodoForm(todoText.text.toString(), contentText.text.toString())
+            for(i in 0 .. todoList.size - 1)
+            {
+                if(todoList[i].todoId == todoId)
+                {
+                    todoList.set(i, TodoForm(todoText.text.toString(), contentText.text.toString(), todoList[i].todoId))
+                }
+            }
             todoAdapter.notifyDataSetChanged()
+//            todoSearchList = todoList
+//            if(todoSearchList.isNotEmpty())
+//            {
+//                for(i in 0 .. todoSearchList.size - 1)
+//                {
+//                    Log.d("TAG", "todoSearchList[$i] - ${todoSearchList[i].to do} ${todoSearchList[i].content}")
+//                }
+//            }
+////            todoSearchList.set(position, TodoForm(todoText.text.toString(), contentText.text.toString()))
+//            todoAdapter.notifyDataSetChanged()
             builder.dismiss()
         }
 
@@ -476,12 +561,13 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 //        memoTitleTextDialog.setText("${memoList[position].memoTitle}")
 //        memoContentTextDialog.setText("${memoList[position].memoContent}")
         loadMemoTitleAndContentTextData()
+        loadMemoIdData()
 
         memoTitleTextDialog.setText("${memoTitleText}")
         memoContentTextDialog.setText("${memoContentText}")
 
 
-        if(memoPlanText != ""){
+        if(memoPlanText != "" || memoPlanText != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)"){
             memoPlanTextDialog.setText("${memoPlanText}")
         }
 
@@ -491,15 +577,23 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         //memoList 저장 버튼
         memoSaveButtonDialog.setOnClickListener {
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoButton is pressed")
-            memoList.set(position, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
+            for(i in 0 .. memoList.size - 1)
+            {
+                if(memoList[i].memoId == memoId)
+                {
+                    memoList.set(i, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}", memoList[i].memoId))
+                }
+            }
+            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             memoAdapter.notifyDataSetChanged()
-
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoList of size : ${memoList.size}")
             memoBuilder.dismiss()
         }
 
         //Dialog 닫기 버튼
         memoCancelButtonDialog.setOnClickListener {
+            memoPlanText = ""
+            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoCancelButton is pressed")
             memoBuilder.dismiss()
         }
@@ -527,17 +621,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         }
     }
 
-    //memoItem 이 remove 되었을 때 memoLottieAnimation 의 visibility 를 조정하는 콜백 함수
-    override fun memoOnItemClick(view: View, position: Int) {
-        Log.d("TAG", "MainActivity.memoOnItemClick - memoOnItemClick")
-        if(memoList.size == 0)
-        {
-            Log.d("TAG", "MainActivity.memoOnItemClick - memoList size is 0")
-            memoLottieAnimationLayout.visibility = View.VISIBLE
-            memoLottieAnimationLayout.startAnimation(startLottieAnimationAlphaAnimation)
-        }
-    }
-
     //memoPlanText 를 조정해주는 콜백 함수
     override fun memoItemViewOnClick(view: View, position: Int) {
         memoListLayoutDialog.visibility = View.VISIBLE
@@ -550,6 +633,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     }
 
     //todoDialog 함수
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun todoDialogDeclaration() {
         val todoDialog = AlertDialog.Builder(this)
         val todoEdialog: LayoutInflater = LayoutInflater.from(this)
@@ -566,10 +650,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         todoButton.setOnClickListener {
             Log.d("TAG", "MainActivity.todoDialogDeclaration - todoButton is pressed")
-            todoList.add(TodoForm(todoText.text.toString(), contentText.text.toString()))
-            Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
-            todoAdapter.notifyDataSetChanged()
-            todoBuilder.dismiss()
+
+            makeTodoId(todoText.text.toString(), contentText.text.toString(), todoBuilder)
             //만일 todoList의 아이템을 추가했을 때 todoList 의 사이즈가 1이면 todoLottieAnimationVisibleForm 을 true 로 바꾸어 주어 LottieAnimation 의 Visible 을 조정해주어야 함.
             if (todoList.size == 1) {
                 todoLottieAnimationVisibleForm = true
@@ -595,6 +677,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     }
 
     //memoDialog 함수
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun memoDialogDeclaration() {
         //필요한 변수 선언
         memoDialog = AlertDialog.Builder(this)
@@ -615,14 +698,15 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         memoBuilder.setView(memoMView)
         memoBuilder.show()
 
+        memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
+
+        memoPlanText = ""
+
         //저장하기 버튼을 눌렀을 때
         memoSaveButtonDialog.setOnClickListener {
             Log.d("TAG", "MainActivity.memoDialogDeclaration - memoButton is pressed")
             date_text = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format(currentTime)
-            memoList.add(0, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}"))
-            Log.d("TAG", "MainActivity.memoDialogDeclaration - memoList of size : ${memoList.size}")
-            memoAdapter.notifyDataSetChanged()
-            memoBuilder.dismiss()
+            makeMemoId(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, memoPlanText, memoBuilder)
             //만일 memoList 의 사이즈가 1이라면 memoLottieAnimationVisibleForm 을 true 로 바꾸어 주어 memoLottieAnimationView 를 GONE 으로 바꾸어 주어야 함.
             if (memoList.size == 1) {
                 memoLottieAnimationVisibleForm = true
@@ -644,7 +728,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         //닫기 버튼이 눌렸을 때
         memoCancelButtonDialog.setOnClickListener {
             Log.d("TAG", "MainActivity.memoDialogDeclaration - memoCancelButton is pressed")
-            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             memoBuilder.dismiss()
         }
 
@@ -667,6 +750,162 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         memoPlanRecyclerViewLayoutDialog.setOnClickListener {
             memoListLayoutDialog.visibility = View.VISIBLE
             memoPlanConstraintLayoutDialog.visibility = View.GONE
+        }
+    }
+
+    //투두아이디를 생성하는 함수.
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun makeTodoId(todoText: String, contentText : String, todoBuilder: AlertDialog) {
+        //투두 아이디 주는 것.
+        todoId = ThreadLocalRandom.current().nextInt(1000000, 9999999).toString()
+        Log.d("TAG", "todoId is ${todoId}")
+
+        //만일 투두리스트가 비었다면 그냥 바로 추가하기
+        if(todoList.isEmpty())
+        {
+            todoList.add(TodoForm(todoText, contentText, todoId))
+            Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
+            todoAdapter.notifyDataSetChanged()
+            todoBuilder.dismiss()
+        }
+        //만일 투두리스트가 비지 않았다면.
+        else if(todoList.isNotEmpty())
+        {
+            for(i in 0 .. todoList.size - 1)
+            {
+                if (todoList[i].todoId == todoId) {
+                    todoIdBoolean = true
+                }
+            }
+            if (todoIdBoolean == false)
+            {
+                todoList.add(TodoForm(todoText, contentText, todoId))
+                Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
+                todoAdapter.notifyDataSetChanged()
+                todoBuilder.dismiss()
+            }
+            else if(todoIdBoolean == true)
+            {
+                todoIdBoolean = false
+                todoId = ThreadLocalRandom.current().nextInt(1000000, 9999999).toString()
+                Log.d("TAG", "todoId is ${todoId}")
+                for(i in 0 .. todoList.size - 1)
+                {
+                    if (todoList[i].todoId == todoId) {
+                        todoIdBoolean = true
+                    }
+                }
+                if(todoIdBoolean == false)
+                {
+                    todoList.add(TodoForm(todoText, contentText, todoId))
+                    Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
+                    todoAdapter.notifyDataSetChanged()
+                    todoBuilder.dismiss()
+                    todoIdBoolean = false
+                }
+                else if(todoIdBoolean == true)
+                {
+                    todoIdBoolean = false
+                    todoId = ThreadLocalRandom.current().nextInt(1000000, 9999999).toString()
+                    Log.d("TAG", "todoId is ${todoId}")
+                    for(i in 0 .. todoList.size - 1)
+                    {
+                        if (todoList[i].todoId == todoId) {
+                            todoIdBoolean = true
+                        }
+                    }
+                    if(todoIdBoolean == false)
+                    {
+                        todoList.add(TodoForm(todoText, contentText, todoId))
+                        Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
+                        todoAdapter.notifyDataSetChanged()
+                        todoBuilder.dismiss()
+                        todoIdBoolean = false
+                    }
+                    else if(todoIdBoolean == true)
+                    {
+                        todoIdBoolean = false
+                        Toast.makeText(applicationContext, "다시 한번 시도해주세요.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    //메모아이디를 생성하는 함수.
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun makeMemoId(memoTitle: String, memoContent: String, date: String, memoPlan: String, memoBuilder: AlertDialog) {
+
+        //메모 아이디 주는 것.
+        memoId = ThreadLocalRandom.current().nextInt(1000000, 9999999).toString()
+        Log.d("TAG", "memoId is ${memoId}")
+        //만일 메모리스트가 비었다면 그냥 바로 추가하기
+        if(memoList.isEmpty())
+        {
+            memoList.add(0, MemoForm(memoTitle, memoContent, date, "${memoPlan}", memoId))
+            Log.d("TAG", "MainActivity.memoDialogDeclaration - memoList of size : ${memoList.size}")
+            memoAdapter.notifyDataSetChanged()
+            memoBuilder.dismiss()
+        }
+        //만일 메모리스트가 비지 않았다면.
+        else if(memoList.isNotEmpty())
+        {
+            for(i in 0 .. memoList.size - 1)
+            {
+                if (memoList[i].memoId == memoId) {
+                    memoIdBoolean = true
+                }
+            }
+            if (memoIdBoolean == false)
+            {
+                memoList.add(0, MemoForm(memoTitle, memoContent, date, "${memoPlan}", memoId))
+                Log.d("TAG", "MainActivity.memoDialogDeclaration - memoList of size : ${memoList.size}")
+                memoAdapter.notifyDataSetChanged()
+                memoBuilder.dismiss()
+            }
+            else if(memoIdBoolean == true)
+            {
+                memoIdBoolean = false
+                memoId = ThreadLocalRandom.current().nextInt(1000000, 9999999).toString()
+                Log.d("TAG", "memoId is ${memoId}")
+                for(i in 0 .. memoList.size - 1)
+                {
+                    if (memoList[i].memoId == memoId) {
+                        memoIdBoolean = true
+                    }
+                }
+                if(memoIdBoolean == false)
+                {
+                    memoList.add(0, MemoForm(memoTitle, memoContent, date, "${memoPlan}", memoId))
+                    Log.d("TAG", "MainActivity.memoDialogDeclaration - memoList of size : ${memoList.size}")
+                    memoAdapter.notifyDataSetChanged()
+                    memoBuilder.dismiss()
+                }
+                else if(memoIdBoolean == true)
+                {
+                    memoIdBoolean = false
+                    memoId = ThreadLocalRandom.current().nextInt(1000000, 9999999).toString()
+                    Log.d("TAG", "memoId is ${memoId}")
+                    for(i in 0 .. memoList.size - 1)
+                    {
+                        if (memoList[i].memoId == memoId) {
+                            memoIdBoolean = true
+                        }
+                    }
+                    if(memoIdBoolean == false)
+                    {
+                        memoList.add(0, MemoForm(memoTitle, memoContent, date, "${memoPlan}", memoId))
+                        Log.d("TAG", "MainActivity.memoDialogDeclaration - memoList of size : ${memoList.size}")
+                        memoAdapter.notifyDataSetChanged()
+                        memoBuilder.dismiss()
+                    }
+                    else if(memoIdBoolean == true)
+                    {
+                        memoIdBoolean = false
+                        Toast.makeText(applicationContext, "다시 한번 시도해주세요.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 }

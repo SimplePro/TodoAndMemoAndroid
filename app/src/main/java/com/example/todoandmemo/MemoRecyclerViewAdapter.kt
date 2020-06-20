@@ -48,18 +48,20 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>,
                 //memoItem 의 Replace 버튼이 클릭 되었을 때
             memoReplaceButton.setOnClickListener {
                 saveMemoTitleAndContentData(memoSearchList[adapterPosition].memoTitle, memoSearchList[adapterPosition].memoContent)
+                saveMemoIdData(memoSearchList[adapterPosition].memoId)
                 //Replace 콜백 함수를 호출한다.
                 clickListener.memoItemReplaceClick(it, adapterPosition)
             }
 
             //memoItem 의 Remove 버튼이 클릭 되었을 때
             memoRemoveButton.setOnClickListener {
+                saveMemoIdData(memoSearchList[adapterPosition].memoId)
                 //해당 position 의 값을 삭제한다.
-                memoList.removeAt(adapterPosition)
-                memoSearchList = memoList
+//                memoList.removeAt(adapterPosition)
+//                memoSearchList = memoList
                 //notify 로 recyclerView 에 반영한다.
-                notifyItemRemoved(adapterPosition)
-                notifyItemChanged(adapterPosition, memoList.size)
+//                notifyItemRemoved(adapterPosition)
+//                notifyItemChanged(adapterPosition, memoList.size)
                 //Remove 콜백 함수를 호출한다.
                 clickListener.memoOnItemClick(it, adapterPosition)
             }
@@ -68,7 +70,6 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>,
 
     //역할 : recyclerView 에 들어갈 item 의 개수를 반환하는 것.
     override fun getItemCount(): Int {
-        Log.d("TAG", "memoSearchList size is ${memoSearchList.size}")
         return memoSearchList.size
     }
 
@@ -141,6 +142,15 @@ class MemoRecyclerViewAdapter (private var memoList: ArrayList<MemoForm>,
         editor
             .putString("memoTitleText", memoTitleText)
             .putString("memoContentText", memoContentText)
+            .apply()
+    }
+
+    private fun saveMemoIdData(memoId: String){
+        val pref = PreferenceManager.getDefaultSharedPreferences(context)
+        val editor = pref.edit()
+
+        editor
+            .putString("memoId", memoId)
             .apply()
     }
 }
