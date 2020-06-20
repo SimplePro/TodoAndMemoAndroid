@@ -567,8 +567,29 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         memoContentTextDialog.setText("${memoContentText}")
 
 
-        if(memoPlanText != "" || memoPlanText != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)"){
+        loop@ for(i in 0 .. memoList.size - 1) {
+            if(memoList[i].memoId == memoId)
+            {
+                Log.d("TAG", "memoList[$i] = 메모아이디와 일치하다.")
+                if(memoList[i].memoPlan != "" || memoList[i].memoPlan != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
+                {
+                    Log.d("TAG", "memoList[$i] = 공백이거나 무슨 계획을... 이다.")
+                    memoPlanText = memoList[i].memoPlan
+                    break@loop
+                }
+                else {
+                    memoPlanText = ""
+                }
+            }
+        }
+
+        if(memoPlanText != "")
+        {
             memoPlanTextDialog.setText("${memoPlanText}")
+        }
+        else if(memoPlanText == "" || memoPlanText == "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
+        {
+            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
         }
 
         memoBuilder.setView(memoMView)
@@ -584,7 +605,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                     memoList.set(i, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}", memoList[i].memoId))
                 }
             }
-            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             memoAdapter.notifyDataSetChanged()
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoList of size : ${memoList.size}")
             memoBuilder.dismiss()
@@ -592,8 +612,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         //Dialog 닫기 버튼
         memoCancelButtonDialog.setOnClickListener {
-            memoPlanText = ""
-            memoPlanTextDialog.setText("무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
             Log.d("TAG", "MainActivity.memoItemReplaceClick - memoCancelButton is pressed")
             memoBuilder.dismiss()
         }
