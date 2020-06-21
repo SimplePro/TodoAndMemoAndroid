@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 29
@@ -36,7 +37,10 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
+    implementation 'com.google.firebase:firebase-database:19.1.0'
+
+
     implementation "com.airbnb.android:lottie:3.4.0"
 
-    compile 'me.everything:overscroll-decor-android:1.0.4'
+    implementation 'me.everything:overscroll-decor-android:1.0.4'
 }

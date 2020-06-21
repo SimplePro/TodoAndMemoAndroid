@@ -17,6 +17,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
 import java.text.SimpleDateFormat
@@ -82,6 +83,9 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     lateinit var memoId: String
     var memoIdBoolean : Boolean = false
 
+//    lateinit var todoRef: DatabaseReference
+//    lateinit var memoRef : DatabaseReference
+
     //역할 : 액티비티가 생성되었을 때.
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +104,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this)
         todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this, todoSearchList)
+
+//        todoRef = FirebaseDatabase.getInstance().getReference("todo")
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
         if(todoList.size >= 1) {
@@ -153,6 +159,9 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
             //tabMenuBoolean 이 TODO가 아니고, todoList의 사이즈가 0이라면
             else if (todoList.size == 0) {
+                //todoSearchView 를 비운다.
+                todoSearchView.setQuery("", false)
+                todoSearchView.clearFocus()
                 //todoRecyclerView는 보여주고 memoRecyclerView는 안 보여준다.
                 if (todoRecyclerView.visibility != View.GONE)
                     todoRecyclerView.visibility = View.GONE
@@ -183,6 +192,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             }
             //만일 todoList 의 사이즈가 0보다 크다면
             else {
+                todoSearchView.setQuery("", false)
+                todoSearchView.clearFocus()
                 //todoRecyclerView는 보여주고 memoRecyclerView는 안 보여준다.
                 if (todoRecyclerView.visibility == View.GONE)
                     todoRecyclerView.visibility = View.VISIBLE
@@ -214,6 +225,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
             //memoList 의 사이즈가 0이라면
             else if(memoList.size == 0) {
+                memoSearchView.setQuery("", false)
+                memoSearchView.clearFocus()
                 //todoRecyclerView 는 안보여주고, memoRecyclerView 는 보여준다.
                 if (todoRecyclerView.visibility != View.GONE)
                     todoRecyclerView.visibility = View.GONE
@@ -242,6 +255,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
             //memoList 의 사이즈가 0보다 크다면
             else {
+                memoSearchView.setQuery("", false)
+                memoSearchView.clearFocus()
                 //todoRecyclerView 는 안보여주고, memoRecyclerView 는 보여준다.
                 if (todoRecyclerView.visibility != View.GONE)
                     todoRecyclerView.visibility = View.GONE
@@ -350,6 +365,27 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         })
 
+//        todoRef.addValueEventListener(object : ValueEventListener{
+//            override fun onCancelled(p0: DatabaseError) {
+//
+//            }
+//
+//            override fun onDataChange(p0: DataSnapshot) {
+//                if(p0!!.exists())
+//                {
+//                    todoList.clear()
+//                    for(t in p0.children)
+//                    {
+//                        val to do = t.getValue(TodoForm::class.java)
+//                        todoList.add(t odo!!)
+//                    }
+//
+//                    todoRecyclerView.adapter = todoAdapter
+//                }
+//            }
+//
+//        })
+
         //todoRecyclerView adapter 연결 & RecyclerView 세팅
         todoRecyclerView.apply{
             adapter = todoAdapter
@@ -376,6 +412,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             if(todoList[i].todoId == todoId)
             {
                 todoList.removeAt(i)
+                todoSearchView.setQuery("", false)
+                todoSearchView.clearFocus()
                 todoAdapter.notifyItemRemoved(i)
                 todoAdapter.notifyItemChanged(i, todoList.size)
                 break@loop
@@ -398,6 +436,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
             if(memoList[i].memoId == memoId)
             {
                 memoList.removeAt(i)
+                memoSearchView.setQuery("", false)
+                memoSearchView.clearFocus()
                 memoAdapter.notifyItemRemoved(i)
                 memoAdapter.notifyItemChanged(i, memoList.size)
                 break@loop
@@ -510,6 +550,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 if(todoList[i].todoId == todoId)
                 {
                     todoList.set(i, TodoForm(todoText.text.toString(), contentText.text.toString(), todoList[i].todoId))
+                    todoSearchView.setQuery("", false)
+                    todoSearchView.clearFocus()
                 }
             }
             todoAdapter.notifyDataSetChanged()
@@ -570,10 +612,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         loop@ for(i in 0 .. memoList.size - 1) {
             if(memoList[i].memoId == memoId)
             {
-                Log.d("TAG", "memoList[$i] = 메모아이디와 일치하다.")
                 if(memoList[i].memoPlan != "" || memoList[i].memoPlan != "무슨 계획을 한 후에 쓰는 메모인가요? (선택)")
                 {
-                    Log.d("TAG", "memoList[$i] = 공백이거나 무슨 계획을... 이다.")
                     memoPlanText = memoList[i].memoPlan
                     break@loop
                 }
@@ -603,6 +643,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 if(memoList[i].memoId == memoId)
                 {
                     memoList.set(i, MemoForm(memoTitleTextDialog.text.toString(), memoContentTextDialog.text.toString(), date_text, "${memoPlanText}", memoList[i].memoId))
+                    memoSearchView.setQuery("", false)
+                    memoSearchView.clearFocus()
                 }
             }
             memoAdapter.notifyDataSetChanged()
@@ -782,6 +824,9 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         if(todoList.isEmpty())
         {
             todoList.add(TodoForm(todoText, contentText, todoId))
+//            todoRef.child(todoId!!).setValue(todoList).addOnCompleteListener {
+//                Toast.makeText(this, "투두리스트 저장완료", Toast.LENGTH_LONG).show()
+//            }
             Log.d("TAG", "MainActivity.todoDialogDeclaration - todoList of size : ${todoList.size}")
             todoAdapter.notifyDataSetChanged()
             todoBuilder.dismiss()
