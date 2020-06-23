@@ -1,42 +1,34 @@
 {
   "project_info": {
-    "project_number": "827654938131",
-    "firebase_url": "https://todoandmemo-8086a.firebaseio.com",
-    "project_id": "todoandmemo-8086a",
-    "storage_bucket": "todoandmemo-8086a.appspot.com"
+    "project_number": "19431601265",
+    "firebase_url": "https://todoandmemo.firebaseio.com",
+    "project_id": "todoandmemo",
+    "storage_bucket": "todoandmemo.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:827654938131:android:0815298c1e32b84734e9e6",
+        "mobilesdk_app_id": "1:19431601265:android:596c97825bec79b8ba17d0",
         "android_client_info": {
           "package_name": "com.example.todoandmemo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "827654938131-1cnq4kj8mf4himg6hln1lhofe5kg0p5h.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.todoandmemo",
-            "certificate_hash": "f21be6eb1df4b4229d15e9837db9c91af4bcae2e"
-          }
-        },
-        {
-          "client_id": "827654938131-f759iii993aipqfhhsqs2ck7smd51tpl.apps.googleusercontent.com",
+          "client_id": "19431601265-p8vhqcpksuoa2tdi8a98sc4aqjj6pglq.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB7R6HaJvtkpSHjImc9SKdB_kAG18jdT24"
+          "current_key": "AIzaSyCUTP2YPdjLVKftWcCal_XMlcT0UULjLXQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "827654938131-f759iii993aipqfhhsqs2ck7smd51tpl.apps.googleusercontent.com",
+              "client_id": "19431601265-p8vhqcpksuoa2tdi8a98sc4aqjj6pglq.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

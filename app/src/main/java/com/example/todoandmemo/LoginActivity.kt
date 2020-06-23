@@ -3,6 +3,7 @@ package com.example.todoandmemo
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
@@ -36,6 +37,7 @@ class LoginActivity : AppCompatActivity() {
         }
             .addOnFailureListener {
                 Toast.makeText(this, "존재하지 않는 계정입니다.", Toast.LENGTH_LONG).show()
+                Log.d("TAG", it.toString())
             }
     }
 
@@ -44,6 +46,7 @@ class LoginActivity : AppCompatActivity() {
         if(currentUser != null)
         {
             startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
     }
 

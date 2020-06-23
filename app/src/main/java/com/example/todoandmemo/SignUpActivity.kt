@@ -52,6 +52,7 @@ class SignUpActivity : AppCompatActivity() {
         if(currentUser != null)
         {
             startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
     }
 }

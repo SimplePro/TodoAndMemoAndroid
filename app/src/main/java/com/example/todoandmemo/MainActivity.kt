@@ -1,11 +1,13 @@
 package com.example.todoandmemo
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -14,9 +16,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
 import androidx.core.view.isEmpty
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper
@@ -25,7 +30,8 @@ import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.collections.ArrayList
 
-class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener
+class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickListener, MemoRecyclerViewAdapter.memoItemClickListener, MemoTodoRecyclerViewAdapter.memoItemViewOnClickListener,
+        NavigationView.OnNavigationItemSelectedListener
 {
 
     //변수 선언
@@ -105,7 +111,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         memoAdapter = MemoRecyclerViewAdapter(memoList as ArrayList<MemoForm>, memoSearchList, this)
         todoAdapter = TodoRecyclerViewAdapter(todoList as ArrayList<TodoForm>, DoneTodoList as ArrayList<TodoForm>, this, todoSearchList)
 
-//        todoRef = FirebaseDatabase.getInstance().getReference("todo")
+//        todoRef = FirebaseDatabase.getInstance().getReference("to do")
 
         //만일 todoList 의 사이즈가 1이면 GONE 으로 되는 todoLottieAnimationVisibleForm 을 true 로 바꾸어 LottieAnimationView 를 GONE 형태로 바꾸어 줘야함.
         if(todoList.size >= 1) {
@@ -131,6 +137,13 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                 memoLottieAnimationVisibleForm = false
             }, 500)
         }
+
+
+        //navigationView
+        navigationButton.setOnClickListener {
+            layout_drawer.openDrawer(GravityCompat.START)
+        }
+        navigationView.setNavigationItemSelectedListener(this)
 
 
         //추가 버튼이 클릭되었을 때.
@@ -402,6 +415,8 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
 
     }
+
+
 
     //todoItem 이 remove 되었을 때 todoLottieAnimation 의 visibility 를 조정하는 콜백 함수
     override fun todoOnItemClick(view: View, position: Int) {
@@ -969,6 +984,32 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
                     }
                 }
             }
+        }
+    }
+
+    //navigationView
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when(item.itemId)
+        {
+            R.id.logout -> {
+                FirebaseAuth.getInstance().signOut()
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }
+        layout_drawer.closeDrawers()
+        return false
+    }
+
+    //뒤로가기 버튼 눌렀을 때
+    override fun onBackPressed() {
+        if(layout_drawer.isDrawerOpen(GravityCompat.START))
+        {
+            layout_drawer.closeDrawers()
+        }
+        else {
+            super.onBackPressed()
         }
     }
 }
