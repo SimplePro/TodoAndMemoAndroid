@@ -89,8 +89,7 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
     lateinit var memoId: String
     var memoIdBoolean : Boolean = false
 
-//    lateinit var todoRef: DatabaseReference
-//    lateinit var memoRef : DatabaseReference
+
 
     //역할 : 액티비티가 생성되었을 때.
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -378,27 +377,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
 
         })
 
-//        todoRef.addValueEventListener(object : ValueEventListener{
-//            override fun onCancelled(p0: DatabaseError) {
-//
-//            }
-//
-//            override fun onDataChange(p0: DataSnapshot) {
-//                if(p0!!.exists())
-//                {
-//                    todoList.clear()
-//                    for(t in p0.children)
-//                    {
-//                        val to do = t.getValue(TodoForm::class.java)
-//                        todoList.add(t odo!!)
-//                    }
-//
-//                    todoRecyclerView.adapter = todoAdapter
-//                }
-//            }
-//
-//        })
-
         //todoRecyclerView adapter 연결 & RecyclerView 세팅
         todoRecyclerView.apply{
             adapter = todoAdapter
@@ -608,15 +586,6 @@ class MainActivity : AppCompatActivity(), TodoRecyclerViewAdapter.todoItemClickL
         memoCancelButtonDialog = memoMView.findViewById<Button>(R.id.memoCancelButtonDialog)
         var currentTime: Date = Calendar.getInstance().getTime()
         val date_text: String = SimpleDateFormat("yyyy년 MM월 dd일 EE요일", Locale.getDefault()).format(currentTime)
-//        if(memoSearchList.isNotEmpty())
-//        {
-//            for (i in 0 .. memoSearchList.size - 1)
-//            {
-//                Log.d("TAG", "memoSearchList")
-//            }
-//        }
-//        memoTitleTextDialog.setText("${memoList[position].memoTitle}")
-//        memoContentTextDialog.setText("${memoList[position].memoContent}")
         loadMemoTitleAndContentTextData()
         loadMemoIdData()
 

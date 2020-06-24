@@ -3,16 +3,28 @@ package com.example.todoandmemo
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.health.UidHealthStats
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import kotlinx.android.synthetic.main.activity_login.*
+import java.lang.Exception
 
 class LoginActivity : AppCompatActivity() {
+
+    lateinit var authUid : String
+
+    lateinit var docRef : DocumentReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
 
         loginButton.setOnClickListener {
             loginEmail()
@@ -42,6 +54,28 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun moveNextPage() {
+
+        Log.d("TAG", "uid is ${FirebaseAuth.getInstance().uid}")
+        if(FirebaseAuth.getInstance().currentUser != null)
+        {
+            authUid = FirebaseAuth.getInstance().currentUser!!.uid
+            docRef = FirebaseFirestore.getInstance().collection("users").document(authUid)
+            docRef.get()
+                .addOnCompleteListener { task ->
+                    if(task.isSuccessful)
+                    {
+                        Log.d("TAG", "exist")
+                        val result = task.result?.getString("hello")
+                        Toast.makeText(applicationContext, result, Toast.LENGTH_LONG).show()
+                    }
+                    else {
+                        Log.d("TAG", "no exist No such document")
+                    }
+                }
+                .addOnFailureListener {Exception ->
+                    Log.d("TAG", "error is $Exception")
+                }
+        }
         var currentUser = FirebaseAuth.getInstance().currentUser
         if(currentUser != null)
         {
